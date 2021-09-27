@@ -1,0 +1,23 @@
+{
+  "name": "burger_barn",
+  "version": "1.0.0",
+  "description": "Website for Burger Barn",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "scss": "node-sass --include-path sass scss/index.scss client/css/style.css --watch",
+    "start": "node app.js"
+  },
+  "author": "Nicholas Eveland",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "eta": "^1.12.3",
+    "express": "^4.17.1",
+    "expressjs": "^1.0.1",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "node-sass": "^6.0.1"
+  }
+}
