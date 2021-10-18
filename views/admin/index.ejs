@@ -1,9 +1,41 @@
 <%- include('.././partials/header') %>
+<div class="wrapper">
     <div id="sidebar">
         <div class="sidebar-heading">
-            <i class="fas fa-hamburger"></i>
-            <h2>Admin</h2>
+            <i class="fas fa-hamburger sidebar-heading-icon"></i>
+            <h3 class="sidebar-heading-title">Admin Panel</h3>
+        </div>
+        <div class="sidebar-selection-container">
+            <a class="sidebar-selection active" href="#menu">
+                <i class="fas fa-utensils sidebar-selection-icon"></i> Menu
+            </a>
+            <a class="sidebar-selection" href="#hours">
+                <i class="far fa-clock sidebar-selection-icon"></i> Hours
+            </a>
         </div>
     </div>
+
+    <div class="main">
+        <div class="main-container">
+            <% menu.forEach(item => { %>
+                <div class="admin-menu-item">
+                    <div class="col col-2"><%= item.name %></div>
+                    <div class="col col-4"><%= item.description %></div>
+                    <div class="col col-2">
+                        <% item.price ? item.price.forEach(price => { %>
+                            <%= Object.keys(price) %> <%= Object.values(price) %>
+                        <% }) : '' %>
+                    </div>
+                    <div class="col col-2"><%= item.category %></div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="/js/index.js"></script>
+
+</body>
+</html>
 
 <%- include('.././partials/footer') %>
