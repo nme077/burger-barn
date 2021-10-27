@@ -39,7 +39,6 @@ a {
   width: 100%; }
 
 .jumbotron {
-  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   text-transform: uppercase;
@@ -125,14 +124,6 @@ a {
 
 .header-line-vert-2 {
   right: 18%; }
-
-.header-line-vert-mid {
-  z-index: 1;
-  position: absolute;
-  height: calc(90% - 200px);
-  top: 200px;
-  /** intersect with .header-line **/
-  border: 1px solid rgba(255, 255, 255, 0.2); }
 
 .hours {
   position: relative;

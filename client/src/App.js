@@ -1,6 +1,12 @@
 import './App.css';
+import * as Scroll from 'react-scroll';
 import React, { useEffect, useState } from 'react';
+import burger_1 from './assets/burger-1.jpeg'
+import burger_2 from './assets/burger-2.jpeg'
+import burger_3 from './assets/burger-3.jpeg'
 
+
+let Link      = Scroll.Link;
 
 function App() {
 
@@ -40,6 +46,7 @@ function Admin() {
 
 function Home(data) {
   const [menu, setMenu] = useState([])
+  const [menuSelection, setMenuSelection] = useState('hamburgers');
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -56,16 +63,24 @@ function Home(data) {
       })
 	}, [])
 
+  function updateMenuSelection(e) {
+    e.preventDefault();
+    const category = e.target.getAttribute('id');
+    e.target.classList.add('active-menu')
+
+    setMenuSelection(category);
+  }
+
   return(
     <div className="App">
       <div className="wrapper">
       <div className="header">
           <div className="navbar">
-              <a href="#menu" className="nav-link">Menu</a>
+              <Link to="menu" className="nav-link" spy={true} smooth={true} duration={500}>Menu</Link>
               <div className="header-logo">
                   <i className="fas fa-hamburger"></i>
               </div>
-              <a href="#map" className="nav-link">Map</a>
+              <Link to="map" className="nav-link" spy={true} smooth={true} duration={500}>Map</Link>
           </div>
           <div className="jumbotron">
               <h6>Restaurant</h6>
@@ -81,9 +96,9 @@ function Home(data) {
               <div className="hours">Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM</div>
               <div className="break"></div>
               <div className="continue-btn-container">
-                  <a href="#menu" className="continue-link">
+                  <Link to="menu" className="continue-link" spy={true} smooth={true} duration={500}>
                       <i className="fas fa-angle-down"></i>
-                  </a>
+                  </Link>
               </div>
               
           </div>
@@ -97,7 +112,6 @@ function Home(data) {
           <hr className="header-line header-line-2" />
           <hr className="header-line-vert header-line-vert-1" />
           <hr className="header-line-vert header-line-vert-2"/>
-          <hr className="header-line-vert-mid" />
       </div>
 
       <div className="menu-wrapper">
@@ -110,57 +124,32 @@ function Home(data) {
                   <h3>Local grass fed gourmet hamburgers & hand cut fries. <br /> 15+ different cheeses, fried food, call ahead for take out. BYOB.</h3>
               </div>
               <div className="menu-selection">
-                  <h5 className="menu-select active-menu" id="hamburgers">Hamburgers</h5>
+                  <h5 className={"menu-select" + (menuSelection === 'hamburgers' ? ' active-menu' : '')} id="hamburgers" onClick={updateMenuSelection}>Hamburgers</h5>
                   <div className="menu-hr"></div>
-                  <h5 className="menu-select" id="seafood">Seafood</h5>
+                  <h5 className={"menu-select" + (menuSelection === 'seafood' ? ' active-menu' : '')} id="seafood" onClick={updateMenuSelection}>Seafood</h5>
                   <div className="menu-hr"></div>
-                  <h5 className="menu-select" id="fried">Fried Stuff</h5>
+                  <h5 className={"menu-select" + (menuSelection === 'fried' ? ' active-menu' : '')} id="fried" onClick={updateMenuSelection}>Fried Stuff</h5>
                   <div className="menu-hr"></div>
-                  <h5 className="menu-select" id="egg">Egg Sandwiches</h5>
+                  <h5 className={"menu-select" + (menuSelection === 'egg' ? ' active-menu' : '')} id="egg" onClick={updateMenuSelection}>Egg Sandwiches</h5>
                   <div className="menu-hr"></div>
-                  <h5 className="menu-select" id="veggie">Veggie Options</h5>
+                  <h5 className={"menu-select" + (menuSelection === 'veggie' ? ' active-menu' : '')} id="veggie" onClick={updateMenuSelection}>Veggie Options</h5>
                   <div className="menu-hr"></div>
-                  <h5 className="menu-select" id="sandwiches">Sandwiches</h5>
+                  <h5 className={"menu-select" + (menuSelection === 'sandwiches' ? ' active-menu' : '')} id="sandwiches" onClick={updateMenuSelection}>Sandwiches</h5>
                   <div className="menu-hr"></div>
-                  <h5 className="menu-select" id="dogs">Dogs</h5>
+                  <h5 className={"menu-select" + (menuSelection === 'dogs' ? ' active-menu' : '')} id="dogs" onClick={updateMenuSelection}>Dogs</h5>
               </div>
               <div className="menu-items-container">
-                  <div className="menu hamburgers active-menu-section">
-                    {menu.map(item => ( item.category === 'hamburgers' ? <MenuItem item={item} /> : null))}
+                  <div className="menu active-menu-section">
+                    {menu.filter(item => item.category === menuSelection).map((item,ind) => ( <MenuItem item={item} ind={ind} />))}
                   </div>
-
-                  <div className="menu seafood inactive-menu-section">
-                    {menu.map(item => ( item.category === 'seafood' ? <MenuItem item={item} /> : null))}
-                  </div>
-
-                  <div className="menu fried inactive-menu-section">
-                    {menu.map(item => ( item.category === 'fried' ? <MenuItem item={item} /> : null))}
-                  </div>
-
-                  <div className="menu egg inactive-menu-section">
-                    {menu.map(item => ( item.category === 'egg' ? <MenuItem item={item} /> : null))}
-                  </div>
-
-                  <div className="menu veggie inactive-menu-section">
-                    {menu.map(item => ( item.category === 'veggie' ? <MenuItem item={item} /> : null))}
-                  </div>
-
-                  <div className="menu sandwiches inactive-menu-section">
-                    {menu.map(item => ( item.category === 'sandwiches' ? <MenuItem item={item} /> : null))}
-                  </div>
-
-                  <div className="menu dogs inactive-menu-section">
-                    {menu.map(item => ( item.category === 'dogs' ? <MenuItem item={item} /> : null))}
-                  </div>
-
               </div>
           </div>
       </div>
 
       <div className="photos-wrapper">
-          <img src="/assets/images/burger-1.jpeg" alt="" className="gallery-photo gallery-photo-1" />
-          <img src="/assets/images/burger-3.jpeg" alt="" className="gallery-photo gallery-photo-2" />
-          <img src="/assets/images/burger-2.jpeg" alt="" className="gallery-photo gallery-photo-4" />
+          <img src={burger_1} alt="" className="gallery-photo gallery-photo-1" />
+          <img src={burger_3} alt="" className="gallery-photo gallery-photo-2" />
+          <img src={burger_2} alt="" className="gallery-photo gallery-photo-4" />
       </div>
 
       <iframe
@@ -171,8 +160,7 @@ function Home(data) {
           style={{"border":0}}
           loading="lazy"
           allowFullScreen
-          src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCOpy1kHsjfQ1fhffc0j22beWG_8iuBE2o
-              &q=Burger+barn+vermont">
+          src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCOpy1kHsjfQ1fhffc0j22beWG_8iuBE2o&q=Burger+barn+vermont">
       </iframe>
 
       <footer>
@@ -183,15 +171,15 @@ function Home(data) {
   )
 }
 
-function MenuItem(item) {
+function MenuItem(item, ind) {
   item = item.item;
 
   return(
     <div className="menu-item">
       <div className="menu-item-line-1">
           <span className="menu-item-name">{item.name ? item.name : ''}</span>
-          { item.price ? item.price.map(price => (
-              <span className="menu-item-price">.... { Object.keys(price) } {Object.values(price)} </span>
+          { item.price ? item.price.map((price, ind) => (
+              <span className="menu-item-price" key={ind}>.... { Object.keys(price) } {Object.values(price)} </span>
           )) : '' }
       </div>
       <div className="menu-item-description">{item.description ? item.description : ''}</div>

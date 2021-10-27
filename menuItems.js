@@ -169,7 +169,7 @@ module.exports = [
         description: 'Michigan sauce, onions, American cheese & mustard'
     },
     {
-        name: 'BurgwerMeister MeisterBurger',
+        name: 'BurgerMeister MeisterBurger',
         category: 'hamburgers',
         price: [{'': '11.00'}],
         description: '2 beef patties, bacon, cheese, lettuce, tomato, onion, pickles, ketchup, mayo & mustard'
