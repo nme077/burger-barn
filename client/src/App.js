@@ -1,36 +1,45 @@
 import './App.css';
 import * as Scroll from 'react-scroll';
 import React, { useEffect, useState } from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from "react-router-dom";
 import burger_1 from './assets/burger-1.jpeg'
 import burger_2 from './assets/burger-2.jpeg'
 import burger_3 from './assets/burger-3.jpeg'
 
 
-let Link      = Scroll.Link;
+let Link = Scroll.Link;
 
 function App() {
 
   return (
-    <Home menu />
+    <Router>
+      <div>
+          <Switch>
+            <Route path="/admin">
+              <Admin menu />
+            </Route>
+            <Route path="/">
+              <Home menu />
+            </Route>
+          </Switch>
+      </div>
+    </Router>
   );
 }
 
 function Home(data) {
   const [menu, setMenu] = useState([])
   const [menuSelection, setMenuSelection] = useState('hamburgers');
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
 		fetch('http://localhost:9000/api/getMenu')
 			.then((res) => res.json())
 			.then((data) => {
-        setIsLoaded(true);
         setMenu(data);
-      },
-      (error) => {
-        setIsLoaded(true);
-        setError(error);
       })
 	}, [])
 
