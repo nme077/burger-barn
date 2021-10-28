@@ -1,13 +1,11 @@
 const express = require('express'),
       app = express(),
       session = require('express-session'),
-      ejs = require('ejs'),
       path = require('path'),
       menu = require('./menuItems'),
       dotenv = require('dotenv').config();
 
 
-app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended: true}));
 // middleware for allowing react to fetch() from server
 app.use(function(req, res, next) {
@@ -35,11 +33,8 @@ app.get('*', (req, res) => {
 })
 
 //production mode
-if(process.env.NODE_ENV === 'production') {  
-    app.use(express.static(path.join(__dirname, '../client/build'))); 
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../client/build', 'index.html'));  
-    })
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../client/build')));
 }
 
 const port = process.env.PORT || 9000;
