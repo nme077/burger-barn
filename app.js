@@ -1,8 +1,10 @@
 const express = require('express'),
       app = express(),
+      session = require('express-session'),
       ejs = require('ejs'),
       path = require('path'),
-      menu = require('./menuItems');
+      menu = require('./menuItems'),
+      dotenv = require('dotenv').config();
 
 
 app.set('view engine', 'ejs');
@@ -17,18 +19,18 @@ app.use(function(req, res, next) {
     next();
 });
 
+app.use(session({
+    cookie: { sameSite: "lax" },
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    credentials: true
+}));
+
 // routes
 app.get('/api/getMenu', (req, res) => {
     res.json(menu);
 });
-
-app.get('/admin', (req, res) => {
-    res.render('admin/index.ejs',{menu});
-})
-
-app.get('/', (req, res) => {
-    res.render('index',{menu});
-})
 
 app.get('*', (req, res) => {
     res.redirect('/');

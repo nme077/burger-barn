@@ -15,35 +15,6 @@ function App() {
   );
 }
 
-function Admin() {
-  return (
-    <div className="App">
-      <div className="wrapper">
-        <div id="sidebar">
-            <div className="sidebar-heading">
-                <i className="fas fa-hamburger sidebar-heading-icon"></i>
-                <h3 className="sidebar-heading-title">Admin Panel</h3>
-            </div>
-            <div className="sidebar-selection-container">
-                <a className="sidebar-selection active" href="#menu">
-                    <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
-                </a>
-                <a className="sidebar-selection" href="#hours">
-                    <i className="far fa-clock sidebar-selection-icon"></i> Hours
-                </a>
-            </div>
-        </div>
-
-        <div className="main">
-            <div className="main-container">
-                
-            </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function Home(data) {
   const [menu, setMenu] = useState([])
   const [menuSelection, setMenuSelection] = useState('hamburgers');
@@ -140,16 +111,16 @@ function Home(data) {
               </div>
               <div className="menu-items-container">
                   <div className="menu active-menu-section">
-                    {menu.filter(item => item.category === menuSelection).map((item,ind) => ( <MenuItem item={item} ind={ind} />))}
+                    {menu.filter(item => item.category === menuSelection).map((item,ind) => ( <MenuItem item={item} itemInd={ind} key={ind} />))}
                   </div>
               </div>
           </div>
       </div>
 
       <div className="photos-wrapper">
-          <img src={burger_1} alt="" className="gallery-photo gallery-photo-1" />
-          <img src={burger_3} alt="" className="gallery-photo gallery-photo-2" />
-          <img src={burger_2} alt="" className="gallery-photo gallery-photo-4" />
+          <img src={burger_1} alt="a burger" className="gallery-photo gallery-photo-1" key="burger_1" />
+          <img src={burger_3} alt="Outside of Burger Barn" className="gallery-photo gallery-photo-2" key="burger_3" />
+          <img src={burger_2} alt="Fries" className="gallery-photo gallery-photo-4" key="burger_2" />
       </div>
 
       <iframe
@@ -171,7 +142,36 @@ function Home(data) {
   )
 }
 
-function MenuItem(item, ind) {
+function Admin() {
+  return (
+    <div className="App">
+      <div className="wrapper">
+        <div id="sidebar">
+            <div className="sidebar-heading">
+                <i className="fas fa-hamburger sidebar-heading-icon"></i>
+                <h3 className="sidebar-heading-title">Admin Panel</h3>
+            </div>
+            <div className="sidebar-selection-container">
+                <a className="sidebar-selection active" href="#menu">
+                    <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
+                </a>
+                <a className="sidebar-selection" href="#hours">
+                    <i className="far fa-clock sidebar-selection-icon"></i> Hours
+                </a>
+            </div>
+        </div>
+
+        <div className="main">
+            <div className="main-container">
+                
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MenuItem(item, itemInd) {
   item = item.item;
 
   return(

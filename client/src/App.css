@@ -91,7 +91,8 @@ a {
   font-weight: bold; }
 
 .nav-link {
-  padding: 50px; }
+  margin-top: 50px; 
+  cursor: pointer;}
 
 .header-logo {
   font-size: 110px;
@@ -309,7 +310,8 @@ footer {
 
 .sidebar-selection-icon {
   margin-right: 20px;
-  margin-left: 20px; }
+  margin-left: 20px; 
+}
 
 .active {
   background-color: rgba(164, 166, 179, 0.25);

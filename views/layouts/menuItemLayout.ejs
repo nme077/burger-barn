@@ -1,9 +1,0 @@
-<div class="menu-item">
-    <div class="menu-item-line-1">
-        <span class="menu-item-name"><%= item.name ? item.name : '' %></span>
-        <% item.price ? item.price.forEach(price => { %>
-            <span class="menu-item-price">.... <%= Object.keys(price) %> <%= Object.values(price) %> </span>
-        <% }) : '' %>
-    </div>
-    <div class="menu-item-description"><%= item.description ? item.description : '' %></div>
-</div>
