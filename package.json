@@ -8,7 +8,6 @@
     "start": "node app.js",
     "heroku-postbuild": "cd client && npm install --only=dev && npm install && npm run build"
   },
-  "proxy": "http://localhost:9000",
   "author": "Nicholas Eveland",
   "license": "ISC",
   "dependencies": {
