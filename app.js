@@ -28,10 +28,6 @@ app.get('/api/getMenu', (req, res) => {
     res.json(menu);
 });
 
-app.get('*', (req, res) => {
-    res.redirect('/');
-})
-
 //production mode
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '/client/build')));
@@ -39,6 +35,10 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.join(__dirname, '/client/build', 'index.html'));  
     })
 }
+
+app.get('*', (req, res) => {
+    res.redirect('/');
+})
 
 const port = process.env.PORT || 9000;
 
