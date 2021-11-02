@@ -10,6 +10,8 @@ import burger_1 from './assets/burger-1.jpeg'
 import burger_2 from './assets/burger-2.jpeg'
 import burger_3 from './assets/burger-3.jpeg'
 
+const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
+
 
 let Link = Scroll.Link;
 
@@ -36,7 +38,7 @@ function Home(data) {
   const [menuSelection, setMenuSelection] = useState('hamburgers');
 
   useEffect(() => {
-		fetch('http://localhost:9000/api/getMenu')
+		fetch(baseURL + '/api/getMenu')
 			.then((res) => res.json())
 			.then((data) => {
         setMenu(data);
