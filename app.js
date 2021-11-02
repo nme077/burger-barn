@@ -36,10 +36,6 @@ if (process.env.NODE_ENV === 'production') {
     })
 }
 
-app.get('*', (req, res) => {
-    res.redirect('/');
-})
-
 const port = process.env.PORT || 9000;
 
 app.listen(port, () => {
