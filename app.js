@@ -29,11 +29,11 @@ app.get('/api/getMenu', (req, res) => {
 });
 
 //production mode
+app.use(express.static(path.join(__dirname, 'build')));
 
-    app.use(express.static('/app/client/build'));
-    app.get('*', (req, res) => {
-        res.sendFile('/app/client/build/index.html');
-    })
+app.get('/*', function (req, res) {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 const port = process.env.PORT || 9000;
 
