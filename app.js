@@ -29,19 +29,11 @@ app.get('/api/getMenu', (req, res) => {
 });
 
 //production mode
-if (process.env.NODE_ENV === 'production') {
+
     app.use(express.static('/app/client/build'));
     app.get('*', (req, res) => {
         res.sendFile('/app/client/build/index.html');
     })
-}
-
-app.get("/*", (req, res) => {
-    let url = path.join(__dirname, './client/build', 'index.html');
-    if (!url.startsWith('/app/')) // since we're on local windows
-      url = url.substring(1);
-    res.sendFile(url);
-  });
 
 const port = process.env.PORT || 9000;
 
