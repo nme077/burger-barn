@@ -8,7 +8,7 @@ const express = require('express'),
 
 app.use(express.urlencoded({extended: true}));
 // Static for deployed app
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, 'client', 'build')));
 // middleware for allowing react to fetch() from server
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -31,8 +31,7 @@ app.get('/api/getMenu', (req, res) => {
 });
 
 app.get('/*', function (req, res) {
-    console.log(__dirname);
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
 });
 
 const port = process.env.PORT || 9000;
