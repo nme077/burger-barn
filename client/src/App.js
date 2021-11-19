@@ -18,6 +18,15 @@ let Link = Scroll.Link;
 function App() {
 
   return (
+      <div>
+          <Home menu />
+      </div>
+  );
+}
+
+/*function App() {
+
+  return (
     <Router>
       <div>
           <Switch>
@@ -31,7 +40,7 @@ function App() {
       </div>
     </Router>
   );
-}
+}*/
 
 function Home(data) {
   const [menu, setMenu] = useState([])
