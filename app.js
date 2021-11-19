@@ -23,6 +23,8 @@ app.use(session({
     credentials: true
 }));
 
+console.log("HERE IS THE SERVER")
+
 // routes
 app.get('/api/getMenu', (req, res) => {
     res.json(menu);
