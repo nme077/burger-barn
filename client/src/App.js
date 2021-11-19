@@ -11,7 +11,7 @@ import burger_2 from './assets/burger-2.jpeg'
 import burger_3 from './assets/burger-3.jpeg'
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
-
+console.log(baseURL)
 
 let Link = Scroll.Link;
 
