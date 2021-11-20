@@ -20,6 +20,9 @@ function App() {
     <Router>
       <div>
           <Switch>
+          <Route path="/test">
+              <div>Here is a test</div>
+            </Route>
             <Route path="/admin">
               <Admin menu />
             </Route>
