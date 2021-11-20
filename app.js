@@ -30,12 +30,13 @@ app.get('/api/getMenu', (req, res) => {
 
 app.get('/*', function (req, res) {
     //production mode
-if(process.env.NODE_ENV === 'production') {
+    res.send('hello, you made it.')
+/*if(process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '/client/build'))); 
     app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, '/client/build', 'index.html'));  
     })
-}
+}*/
 });
 
 const port = process.env.PORT || 9000;
