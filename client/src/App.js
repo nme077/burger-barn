@@ -1,12 +1,11 @@
 import './App.css';
 import * as Scroll from 'react-scroll';
 import React, { useEffect, useState } from 'react';
-/* Commenting out to test theory
 import {
   BrowserRouter as Router,
   Switch,
   Route
-} from "react-router-dom";*/
+} from "react-router-dom";
 import burger_1 from './assets/burger-1.jpeg'
 import burger_2 from './assets/burger-2.jpeg'
 import burger_3 from './assets/burger-3.jpeg'
@@ -17,10 +16,6 @@ let Link = Scroll.Link;
 
 function App() {
 
-  return (
-    <div>This is my test page.</div>
-  )
-/*
   return (
     <Router>
       <div>
@@ -38,7 +33,7 @@ function App() {
       </div>
     </Router>
   );
-  */
+
 }
 
 function Home(data) {
