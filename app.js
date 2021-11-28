@@ -28,10 +28,11 @@ app.get('/api/getMenu', (req, res) => {
     res.json(menu);
 });
 
-app.get('*', function (req, res) {
-    app.use(express.static(path.join(__dirname, '/client/build'))); 
-    res.sendFile(path.join(__dirname, '/client/build', 'index.html'));
-});
+const root = require('path').join(__dirname, 'client', 'build')
+app.use(express.static(root));
+app.get("*", (req, res) => {
+    res.sendFile('index.html', { root });
+})
 
 const port = process.env.PORT || 9000;
 
