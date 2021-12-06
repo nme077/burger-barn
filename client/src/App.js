@@ -192,9 +192,9 @@ function MenuItem(item, itemInd) {
     <div className="menu-item">
       <div className="menu-item-line-1">
           <span className="menu-item-name">{item.name ? item.name : ''}</span>
-          { item.price ? item.price.map((price, ind) => (
-              <span className="menu-item-price" key={ind}>.... { Object.keys(price) } {Object.values(price)} </span>
-          )) : '' }
+          {item.prices.map((price, ind) => {
+            return <span className="menu-item-price" key={ind}>.... { price[0] } {price[1]}</span>
+          })}
       </div>
       <div className="menu-item-description">{item.description ? item.description : ''}</div>
     </div>

@@ -2,8 +2,9 @@ const express = require('express'),
       app = express(),
       session = require('express-session'),
       path = require('path'),
-      menu = require('./menuItems'),
-      dotenv = require('dotenv').config();
+      MenuItem = require('./models/menuItem'),
+      dotenv = require('dotenv').config(),
+      mongoose = require('mongoose');
 
 
 app.use(express.urlencoded({extended: true}));
@@ -15,6 +16,9 @@ app.use(function(req, res, next) {
     next();
 });
 
+// CONNECT TO MONGODB
+mongoose.connect(process.env.URI, {useNewUrlParser: true, useUnifiedTopology: true});
+
 app.use(session({
     cookie: { sameSite: "lax" },
     secret: process.env.SESSION_SECRET,
@@ -23,9 +27,11 @@ app.use(session({
     credentials: true
 }));
 
-// routes
 app.get('/api/getMenu', (req, res) => {
-    res.json(menu);
+   MenuItem.find((err, menu) => {
+        if(err) return res.send("Error fetching menu");
+        res.json(menu);
+    })
 });
 
 const root = require('path').join(__dirname, 'client', 'build')
