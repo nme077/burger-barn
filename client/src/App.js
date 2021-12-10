@@ -68,7 +68,7 @@ function Home(data) {
               <Link to="map" className="nav-link" spy={true} smooth={true} duration={500}>Map</Link>
           </div>
           <div className="jumbotron">
-              <h6>Restaurant</h6>
+              <h6>Jeffersonville, VT</h6>
               <div className="break"></div>
               <h1>Burger Barn</h1>
               <div className="break"></div>
@@ -78,7 +78,9 @@ function Home(data) {
                   <a href="tel:(802)730-3441">Call to order</a>
               </button>
               <div className="break"></div>
-              <div className="hours">Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM</div>
+              <div className="hours-container">
+                <h5 className="hours">Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM</h5>
+              </div>
               <div className="break"></div>
               <div className="continue-btn-container">
                   <Link to="menu" className="continue-link" spy={true} smooth={true} duration={500}>
