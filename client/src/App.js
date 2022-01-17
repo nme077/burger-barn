@@ -1,206 +1,297 @@
 import './App.css';
-import * as Scroll from 'react-scroll';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
 } from "react-router-dom";
-import burger_1 from './assets/burger-1.jpeg'
-import burger_2 from './assets/burger-2.jpeg'
-import burger_3 from './assets/burger-3.jpeg'
+import CurrencyInput from 'react-currency-input-field';
+import Home from './components/Home';
+import Register from './components/Login/Register';
+import Login from './components/Login/Login';
 
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
-
-let Link = Scroll.Link;
+const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com/' : 'http://localhost:9000/';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState();
 
   return (
     <Router>
-      <div>
-          <Switch>
-          <Route path="/test">
-              <div>Here is a test</div>
-            </Route>
-            <Route path="/admin">
-              <Admin menu />
-            </Route>
-            <Route path="/">
-              <Home menu />
-            </Route>
-          </Switch>
-      </div>
+        <Switch>
+          <Route path="/admin">
+            {isLoggedIn ? <Redirect to="/login" /> : <Admin />}
+          </Route>
+          <Route path="/register">
+            {isLoggedIn ? <Redirect to="/admin" /> : <Register />}
+          </Route>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route exact path="/">
+            <Home menu />
+          </Route>
+          <Route path="*">
+            <Redirect to="/" />
+          </Route>
+        </Switch>
     </Router>
   );
 
 }
 
-function Home(data) {
-  const [menu, setMenu] = useState([])
-  const [menuSelection, setMenuSelection] = useState('hamburgers');
+function Admin() {
+  const [menu, setMenu] = useState([]);
+  const [displayInputForm, setDisplayInputForm] = useState(false);
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [categoryList, setCategoryList] = useState([]);
+  const [price1, setPrice1] = useState('');
+  const [priceDesc1, setPriceDesc1] = useState('');
+  const [price2, setPrice2] = useState('');
+  const [priceDesc2, setPriceDesc2] = useState('');
+  const [price3, setPrice3] = useState('');
+  const [priceDesc3, setPriceDesc3] = useState('');
+  const [description, setDescription] = useState('');
+  const [order, setOrder] = useState('');
+  const [id, setId] = useState('');
+  const [editState, setEditState] = useState(false);
+  const [categorySelect, setCategorySelect] = useState(''); // Category to display on admin page
 
-  useEffect(() => {
-		fetch(baseURL + '/api/getMenu')
-			.then((res) => res.json())
-			.then((data) => {
-        setMenu(data);
-      })
-	}, [])
-
-  function updateMenuSelection(e) {
-    e.preventDefault();
-    const category = e.target.getAttribute('id');
-    e.target.classList.add('active-menu')
-
-    setMenuSelection(category);
+  const addItemData = {
+    name: name,
+    category: category,
+    price1: price1,
+    priceDesc1: priceDesc1,
+    price2: price2,
+    priceDesc2: priceDesc2,
+    price3: price3,
+    priceDesc3: priceDesc3,
+    description: description,
+    order: order,
+    id: id // Only used to edit items
   }
 
-  return(
-    <div className="App">
-      <div className="wrapper">
-      <div className="header">
-          <div className="navbar">
-              <Link to="menu" className="nav-link" spy={true} smooth={true} duration={500}>Menu</Link>
-              <div className="header-logo">
-                  <i className="fas fa-hamburger"></i>
-              </div>
-              <Link to="map" className="nav-link" spy={true} smooth={true} duration={500}>Map</Link>
-          </div>
-          <div className="jumbotron">
-              <h6>Jeffersonville, VT</h6>
-              <div className="break"></div>
-              <h1>Burger Barn</h1>
-              <div className="break"></div>
-              <hr className="rectangle" />
-              <div className="break"></div>
-              <button className="order-btn">
-                  <a href="tel:(802)730-3441">Call to order</a>
-              </button>
-              <div className="break"></div>
-              <div className="hours-container">
-                <h5 className="hours">Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM</h5>
-              </div>
-              <div className="break"></div>
-              <div className="continue-btn-container">
-                  <Link to="menu" className="continue-link" spy={true} smooth={true} duration={500}>
-                      <i className="fas fa-angle-down"></i>
-                  </Link>
-              </div>
-              
-          </div>
-          
-          <div className="social-links">
-              <a href="https://www.facebook.com/BurgerbarnVT/" className="social-link" target="_blank" rel="noreferrer">
-                  <i className="fab fa-facebook-f"></i>
-              </a>
-          </div>
-          <hr className="header-line header-line-1" />
-          <hr className="header-line header-line-2" />
-          <hr className="header-line-vert header-line-vert-1" />
-          <hr className="header-line-vert header-line-vert-2"/>
-      </div>
+  const sortItems = (a,b) => {
+    return a.order - b.order
+  }
 
-      <div className="menu-wrapper">
-          <div className="menu-container" id="menu">
-              <div className="menu-heading">
-                  <h2>Our Menu</h2>
-                  <div className="break"></div>
-                  <hr className="rectangle rectangle-menu" />
-                  <div className="break"></div>
-                  <h3>Local grass fed gourmet hamburgers & hand cut fries. <br /> 15+ different cheeses, fried food, call ahead for take out. BYOB.</h3>
-              </div>
-              <div className="menu-selection">
-                  <h5 className={"menu-select" + (menuSelection === 'hamburgers' ? ' active-menu' : '')} id="hamburgers" onClick={updateMenuSelection}>Hamburgers</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'seafood' ? ' active-menu' : '')} id="seafood" onClick={updateMenuSelection}>Seafood</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'fried' ? ' active-menu' : '')} id="fried" onClick={updateMenuSelection}>Fried Stuff</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'egg' ? ' active-menu' : '')} id="egg" onClick={updateMenuSelection}>Egg Sandwiches</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'veggie' ? ' active-menu' : '')} id="veggie" onClick={updateMenuSelection}>Veggie Options</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'sandwiches' ? ' active-menu' : '')} id="sandwiches" onClick={updateMenuSelection}>Sandwiches</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'dogs' ? ' active-menu' : '')} id="dogs" onClick={updateMenuSelection}>Dogs</h5>
-              </div>
-              <div className="menu-items-container">
-                  <div className="menu active-menu-section">
-                    {menu.filter(item => item.category === menuSelection).map((item,ind) => ( <MenuItem item={item} itemInd={ind} key={ind} />))}
-                  </div>
-              </div>
-          </div>
-      </div>
+  // Initialize the menu
+  useEffect(() => {
+    fetch(baseURL + 'api/menu')
+        .then((res) => res.json())
+        .then((data) => {
+          setCategoryList(data.categories);
+          setMenu(data.menu);
+          setCategorySelect(data.categories[0].name);
+        })
+        .catch(() => {
+          setMenu({error: 'Error fetching Menu'});
+        })
+  },[]);
 
-      <div className="photos-wrapper">
-          <img src={burger_1} alt="a burger" className="gallery-photo gallery-photo-1" key="burger_1" />
-          <img src={burger_3} alt="Outside of Burger Barn" className="gallery-photo gallery-photo-2" key="burger_3" />
-          <img src={burger_2} alt="Fries" className="gallery-photo gallery-photo-4" key="burger_2" />
-      </div>
+  //Check for user auth
+  //useEffect(() => {
+  //  fetch(baseURL + 'logged_in')
+  //      .then((res) => res.json())
+  //      .then((data) => {
+  //        console.log(data);
+  //      })
+  //      .catch((err) => {
+  //        console.log(err);
+  //      })
+  //},[]);
 
-      <iframe
-          title="map"
-          id="map"
-          width="100%"
-          height="600px"
-          style={{"border":0}}
-          loading="lazy"
-          allowFullScreen
-          src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCOpy1kHsjfQ1fhffc0j22beWG_8iuBE2o&q=Burger+barn+vermont">
-      </iframe>
+  // Fetch the menu
+  function getMenu() {
+      fetch(baseURL + 'api/menu')
+        .then((res) => res.json())
+        .then((data) => {
+          setCategoryList(data.categories);
+          setMenu(data.menu);
+        })
+        .catch(() => {
+          setMenu({error: 'Error fetching Menu'});
+        })
+  }
+  
+  // Delete menu item route
+  function deleteItem(itemId) {
+    fetch(baseURL + 'api/menu/'+itemId, {
+      method: 'POST'
+    }).then(() => {
+      console.log('deleting')
+      getMenu();
+    })
+  }
 
-      <footer>
-          <div className="copyright">&copy; Copyright Nicholas Eveland {new Date().getFullYear()}</div>
-      </footer>
-      </div>
-    </div>
-  )
-}
+  function showEditItem(item) {
+    setEditState(true); // Set input modal to edit mode
+    setDisplayInputForm(true); // Show the input modal
+    // Populate the input form with corresponding item info to edit
+    setName(item.name);
+    setCategory(item.category);
+    if(item.prices[0]) setPrice1(item.prices[0][1]);
+    if(item.prices[0]) setPriceDesc1(item.prices[0][0]);
+    if(item.prices[1]) setPrice2(item.prices[1][1]);
+    if(item.prices[1]) setPriceDesc2(item.prices[1][0]);
+    if(item.prices[2]) setPrice3(item.prices[2][1]);
+    if(item.prices[2]) setPriceDesc3(item.prices[2][0]);
+    setDescription(item.description);
+    setOrder(item.order);
+    setId(item._id)
+  }
 
-function Admin() {
+  function clearItemInfo() {
+    setName('');
+    setCategory('');
+    setPrice1('');
+    setPriceDesc1('');
+    setPrice2('');
+    setPriceDesc2('');
+    setPrice3('');
+    setPriceDesc3('');
+    setDescription('');
+    setOrder('');
+    setEditState(false);
+  }
+
+  function handleAddItemSubmit(data) {
+    fetch(baseURL + 'api/menu', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    }).then(() => {
+      setDisplayInputForm(false); // Hide the input modal
+      console.log('submitted')
+      getMenu();
+    })
+  }
+  
+  function handleEditItemSubmit(data) {
+    fetch(baseURL + 'api/menu/edit/'+data.id, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    }).then(() => {
+      setDisplayInputForm(false); // Hide the input modal
+      console.log('edit submitted')
+      getMenu();
+    }).catch(() => {
+      setDisplayInputForm(false); // Hide the input modal
+    })
+  }
+
+  // Create menu item route
+  //const createMenuItem = () => {
+  //  fetch(baseURL + '/api/menu', {
+  //    method: 'POST',
+  //    headers: {
+  //      'Content-Type': 'application/json',
+  //    },
+  //    body: JSON.stringify({
+  //      name: 'formData'
+  //    })
+  //  })
+  //    .then((res) => res.json())
+  //    .then((data) => {
+  //      setMenu(data);
+  //    })
+  //}
+
   return (
     <div className="App">
       <div className="wrapper">
         <div id="sidebar">
             <div className="sidebar-heading">
                 <i className="fas fa-hamburger sidebar-heading-icon"></i>
-                <h3 className="sidebar-heading-title">Admin Panel</h3>
+                <h3 className="sidebar-heading-title">Admin</h3>
             </div>
             <div className="sidebar-selection-container">
-                <a className="sidebar-selection active" href="#menu">
+                <a className="sidebar-selection active" href="/admin">
                     <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
-                </a>
-                <a className="sidebar-selection" href="#hours">
-                    <i className="far fa-clock sidebar-selection-icon"></i> Hours
                 </a>
             </div>
         </div>
 
         <div className="main">
             <div className="main-container">
-                
+              <div className="header-container">
+                <h2 className="heading-title">Menu</h2>
+                <select className="category-select" value={categorySelect} onChange={(e) => setCategorySelect(e.target.value)}>
+                  {categoryList.map(cat => {
+                    return <option value={cat.name} key={cat._id}>{cat.name}</option>
+                  })}
+                </select>
+                <div className="heading-btn-container">
+                  <button className="admin-btn add-btn" onClick={() => setDisplayInputForm(true)}><i className="fas fa-plus"></i></button>
+                </div>
+              </div>
+              <div className="column-header-container">
+                <div className="col-admin col-drag"></div>
+                <h3 className="col-admin col-1-admin">Name</h3>
+                <h3 className="col-admin col-2-admin">Description</h3>
+                <h3 className="col-admin col-3-admin">Price</h3>
+                <h3 className="col-admin col-4-admin">Category</h3>
+                <div className="col-admin col-5-admin"></div>
+                <div className="col-admin col-6-admin"></div>
+              </div>
+              <div className="menu-admin">
+                {menu.error ? <div className="error-menu">{menu.error}</div> : menu.filter(item => {return item.category === categorySelect}).sort(sortItems).map((item,ind) => (
+                   <div key={ind}>
+                   <div className="menu-item-container-admin">
+                     <div className="col-admin col-drag"><i className="fas fa-bars"></i></div>
+                     <div className="col-admin col-1-admin menu-item-name-admin">{item.name ? item.name : ''}</div>
+                     <div className="col-admin col-2-admin menu-item-description-admin">{item.description ? item.description : ''}</div>
+                     <div className="col-admin col-3-admin price-container">
+                       {item.prices.map((price, ind) => {
+                         return <div key={ind}>{price[0] ? `desc(${ind+1}): ` + price[0] + ', ' : ''} {price[1]}</div>;
+                       })}
+                     </div>
+                     <div className="col-admin col-4-admin menu-item-category-admin">{item.category ? item.category : ''}</div>
+                     <button className="col-admin col-5-admin form-btn" onClick={() => showEditItem(item)}>Edit</button>
+                     <button className="col-admin col-6-admin form-btn delete-btn" onClick={() => deleteItem(item._id)}>Delete</button>
+                   </div>
+                 </div>
+                ))}
+              </div>
             </div>
         </div>
       </div>
+      {displayInputForm ? 
+        <div className="add-item-container">
+          <div className="add-item-inner">
+            <button className="btn-cancel" onClick={() => {setDisplayInputForm(false); clearItemInfo();}}><i className="fas fa-times"></i></button>
+            <input className="add-item-input" type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+            <input className="add-item-input" type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <select className="add-item-input add-item-input-category" value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="grapefruit">Select a Category</option>
+              {categoryList.map(cat => {
+                return <option value={cat.name} key={cat._id}>{cat.name}</option>
+              })}
+            </select>
+            <div className="price-input-group">
+              <input className="add-item-input price-desc-input" type="text" placeholder="Price (1) description (optional)" value={priceDesc1} onChange={(e) => setPriceDesc1(e.target.value)} />
+              <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price1} onChange={(e) => setPrice1(e.target.value.replace(/[^\d.]/gi, ""))} />
+              <input className="add-item-input price-desc-input" type="text" placeholder="Price (2) description (optional)" value={priceDesc2} onChange={(e) => setPriceDesc2(e.target.value)} />
+              <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price2} onChange={(e) => setPrice3(e.target.value.replace(/[^\d.]/gi, ""))} />
+              <input className="add-item-input price-desc-input" type="text" placeholder="Price (3) description (optional)" value={priceDesc3} onChange={(e) => setPriceDesc2(e.target.value)} />
+              <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price3} onChange={(e) => setPrice3(e.target.value.replace(/[^\d.]/gi, ""))} />
+            </div>
+            <input className="add-item-input" type="text" placeholder="Order" value={order} onChange={(e) => setOrder(e.target.value)} />
+            
+            {editState ? 
+              <button className="btn-add-item-submit" value="submit" onClick={() => handleEditItemSubmit(addItemData)}><span>Save changes</span></button>
+              : 
+              <button className="btn-add-item-submit" value="submit" onClick={() => handleAddItemSubmit(addItemData)}><span>Add item</span></button>
+            }
+          
+          </div>
+        </div> 
+        : null}
     </div>
   );
-}
-
-function MenuItem(item, itemInd) {
-  item = item.item;
-
-  return(
-    <div className="menu-item">
-      <div className="menu-item-line-1">
-          <span className="menu-item-name">{item.name ? item.name : ''}</span>
-          {item.prices.map((price, ind) => {
-            return <span className="menu-item-price" key={ind}>.... { price[0] } {price[1]}</span>
-          })}
-      </div>
-      <div className="menu-item-description">{item.description ? item.description : ''}</div>
-    </div>
-  )
 }
 
 export default App;
