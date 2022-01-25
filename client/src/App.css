@@ -378,7 +378,8 @@ footer {
   height: 100vh;
   width: 200px;
   color: #A4A6B3;
-  position: fixed; }
+  position: fixed; 
+}
 
 .sidebar-heading-icon, .sidebar-heading-title {
   display: inline-flex; }
@@ -413,6 +414,11 @@ footer {
 .sidebar-selection-icon {
   margin-right: 20px;
   margin-left: 20px; 
+}
+
+.logout {
+  position: absolute;
+  bottom: 0;
 }
 
 .active {
@@ -464,6 +470,7 @@ footer {
   font-family: Avenir;
   justify-self: left;
   font-size: 16px;
+  margin-left: 10px;
 }
 
 .column-header-container, .menu-item-container-admin {

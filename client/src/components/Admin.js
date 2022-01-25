@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useHistory } from "react-router-dom";
+
+import { Item } from './Item.js'
 
 import CurrencyInput from 'react-currency-input-field';
+
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com/' : 'http://localhost:9000/';
 
 function Admin() {
+    // State variables
     const [menu, setMenu] = useState([]);
     const [displayInputForm, setDisplayInputForm] = useState(false);
     const [name, setName] = useState('');
@@ -21,6 +26,8 @@ function Admin() {
     const [id, setId] = useState('');
     const [editState, setEditState] = useState(false);
     const [categorySelect, setCategorySelect] = useState(''); // Category to display on admin page
+    const [sortedMenu, setSortedMenu] = useState([]);
+    // End state variables
   
     const addItemData = {
       name: name,
@@ -35,12 +42,15 @@ function Admin() {
       order: order,
       id: id // Only used to edit items
     }
+
+    const history = useHistory();
   
-    const sortItems = (a,b) => {
+    function sortItems(a,b) {
       return a.order - b.order
     }
+    //const sortedMenu = menu.filter(item => {return item.category === categorySelect}).sort(sortItems);
   
-    // Initialize the menu
+    // Initialize the menu on page load
     useEffect(() => {
       fetch(baseURL + 'api/menu')
           .then((res) => res.json())
@@ -48,24 +58,16 @@ function Admin() {
             setCategoryList(data.categories);
             setMenu(data.menu);
             setCategorySelect(data.categories[0].name);
+            setSortedMenu(data.menu.filter(item => {return item.category === data.categories[0].name}).sort(sortItems))
+          })
+          .then(()=> {
+            
           })
           .catch(() => {
             setMenu({error: 'Error fetching Menu'});
           })
     },[]);
-  
-    //Check for user auth
-    //useEffect(() => {
-    //  fetch(baseURL + 'logged_in')
-    //      .then((res) => res.json())
-    //      .then((data) => {
-    //        console.log(data);
-    //      })
-    //      .catch((err) => {
-    //        console.log(err);
-    //      })
-    //},[]);
-  
+
     // Fetch the menu
     function getMenu() {
         fetch(baseURL + 'api/menu')
@@ -86,6 +88,19 @@ function Admin() {
       }).then(() => {
         console.log('deleting')
         getMenu();
+      })
+    }
+
+    //Logout
+    function logout(e) {
+      fetch(baseURL + 'logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { "Content-Type": "application/json" }
+      }).then((res) => {
+        history.push('/');
+      }).catch((err) => {
+        console.log(err);
       })
     }
   
@@ -128,7 +143,6 @@ function Admin() {
         body: JSON.stringify(data)
       }).then(() => {
         setDisplayInputForm(false); // Hide the input modal
-        console.log('submitted')
         getMenu();
       })
     }
@@ -140,12 +154,32 @@ function Admin() {
         body: JSON.stringify(data)
       }).then(() => {
         setDisplayInputForm(false); // Hide the input modal
-        console.log('edit submitted')
         getMenu();
       }).catch(() => {
         setDisplayInputForm(false); // Hide the input modal
       })
     }
+
+    const moveItem = useCallback((dragIndex, hoverIndex) => {
+      //const dragItem = sortedMenu[dragIndex];
+      const dragItem = sortedMenu[dragIndex];
+      //console.log('move '+dragItem.name + ' to ' + hoverIndex+'?');
+      
+      //const newArr = [...sortedMenu]
+      const newArr = [...sortedMenu];
+
+      newArr.splice(dragIndex,1);
+      newArr.splice(hoverIndex,0,dragItem)
+
+      setSortedMenu(newArr)
+      return newArr;
+      //setCards(update(cards, {
+      //    $splice: [
+      //        [dragIndex, 1],
+      //        [hoverIndex, 0, dragItem],
+      //    ],
+      //}));
+    }, [sortedMenu]);
   
     // Create menu item route
     //const createMenuItem = () => {
@@ -177,13 +211,17 @@ function Admin() {
                       <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
                   </a>
               </div>
+              <div className="sidebar-selection-container logout">
+                  <button className="sidebar-selection" onClick={logout}>
+                      <i className="fas fa-sign-out-alt sidebar-selection-icon"></i> Logout
+                  </button>
+              </div>
           </div>
   
           <div className="main">
               <div className="main-container">
                 <div className="header-container">
-                  <h2 className="heading-title">Menu</h2>
-                  <select className="category-select" value={categorySelect} onChange={(e) => setCategorySelect(e.target.value)}>
+                  <select className="category-select" value={categorySelect} onChange={(e) => {setCategorySelect(e.target.value); setSortedMenu(menu.filter(item => {return item.category === e.target.value}).sort(sortItems))}}>
                     {categoryList.map(cat => {
                       return <option value={cat.name} key={cat._id}>{cat.name}</option>
                     })}
@@ -201,24 +239,10 @@ function Admin() {
                   <div className="col-admin col-5-admin"></div>
                   <div className="col-admin col-6-admin"></div>
                 </div>
+                              
                 <div className="menu-admin">
-                  {menu.error ? <div className="error-menu">{menu.error}</div> : menu.filter(item => {return item.category === categorySelect}).sort(sortItems).map((item,ind) => (
-                     <div key={ind}>
-                     <div className="menu-item-container-admin">
-                       <div className="col-admin col-drag"><i className="fas fa-bars"></i></div>
-                       <div className="col-admin col-1-admin menu-item-name-admin">{item.name ? item.name : ''}</div>
-                       <div className="col-admin col-2-admin menu-item-description-admin">{item.description ? item.description : ''}</div>
-                       <div className="col-admin col-3-admin price-container">
-                         {item.prices.map((price, ind) => {
-                           return <div key={ind}>{price[0] ? `desc(${ind+1}): ` + price[0] + ', ' : ''} {price[1]}</div>;
-                         })}
-                       </div>
-                       <div className="col-admin col-4-admin menu-item-category-admin">{item.category ? item.category : ''}</div>
-                       <button className="col-admin col-5-admin form-btn" onClick={() => showEditItem(item)}>Edit</button>
-                       <button className="col-admin col-6-admin form-btn delete-btn" onClick={() => deleteItem(item._id)}>Delete</button>
-                     </div>
-                   </div>
-                  ))}
+                  {menu.error ? <div className="error-menu">{menu.error}</div> : sortedMenu.map((item,ind) => 
+                    <Item item={item} index={ind} test="test" key={item._id} sortedMenu={sortedMenu} deleteItem={deleteItem} id={item._id} showEditItem={showEditItem} moveItem={moveItem} />)}
                 </div>
               </div>
           </div>
@@ -239,8 +263,8 @@ function Admin() {
                 <input className="add-item-input price-desc-input" type="text" placeholder="Price (1) description (optional)" value={priceDesc1} onChange={(e) => setPriceDesc1(e.target.value)} />
                 <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price1} onChange={(e) => setPrice1(e.target.value.replace(/[^\d.]/gi, ""))} />
                 <input className="add-item-input price-desc-input" type="text" placeholder="Price (2) description (optional)" value={priceDesc2} onChange={(e) => setPriceDesc2(e.target.value)} />
-                <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price2} onChange={(e) => setPrice3(e.target.value.replace(/[^\d.]/gi, ""))} />
-                <input className="add-item-input price-desc-input" type="text" placeholder="Price (3) description (optional)" value={priceDesc3} onChange={(e) => setPriceDesc2(e.target.value)} />
+                <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price2} onChange={(e) => setPrice2(e.target.value.replace(/[^\d.]/gi, ""))} />
+                <input className="add-item-input price-desc-input" type="text" placeholder="Price (3) description (optional)" value={priceDesc3} onChange={(e) => setPriceDesc3(e.target.value)} />
                 <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price3} onChange={(e) => setPrice3(e.target.value.replace(/[^\d.]/gi, ""))} />
               </div>
               <input className="add-item-input" type="text" placeholder="Order" value={order} onChange={(e) => setOrder(e.target.value)} />

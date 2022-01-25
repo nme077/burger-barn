@@ -40,8 +40,8 @@ app.use(session({
         checkPeriod: 86400000 // prune expired entries every 24h
     }),
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     credentials: true
 }));
 // Cookies
@@ -77,7 +77,7 @@ app.post('/api/menu', (req, res) => {
     const newItem = {
         name: req.body.name,
         category: req.body.category,
-        prices: [[req.body.priceDesc1, req.body.price1], [req.body.priceDesc2, req.body.price2]],
+        prices: [[req.body.priceDesc1, req.body.price1], [req.body.priceDesc2, req.body.price2], [req.body.priceDesc3, req.body.price3]],
         description: req.body.description,
         order: req.body.order
     }
@@ -93,7 +93,7 @@ app.post('/api/menu/edit/:id', (req, res) => {
     const item = {
         name: req.body.name,
         category: req.body.category,
-        prices: [[req.body.priceDesc1, req.body.price1], [req.body.priceDesc2, req.body.price2]],
+        prices: [[req.body.priceDesc1, req.body.price1], [req.body.priceDesc2, req.body.price2], [req.body.priceDesc3, req.body.price3]],
         description: req.body.description,
         order: req.body.order
     }
@@ -146,20 +146,27 @@ app.post('/register', (req, res) => {
 });
 
 // Handle login
-app.post('/login', function(req, res, next) {
-    passport.authenticate('local', function(err, user) {
-      if (err) return next(err);
-      if (!user) return res.json({error: 'try again?'});
-
-      req.logIn(user, (err) => {
-        if (err) return next(err);
-        return res.json({success: 'Welcome!!!', user});
-      });
+app.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if(err) return res.json({error: err});
+        if(!user) return res.json({error: info});
+        req.logIn(user, err => {
+            if(err) return res.json({error: err});
+            res.json({success: 'You are now logged in!'});
+            return
+        })
     })(req, res, next);
-}); 
+})
 
 app.get('/logged_in', (req, res) => {
-    return res.json({message: req.isAuthenticated()});
+    const userAuthenticated = req.isAuthenticated();
+
+    return res.json({userAuthenticated: userAuthenticated});
+})
+
+app.post('/logout', (req, res) => {
+    req.logout();
+    return res.json({success: 'User logged out'});
 })
 
 
