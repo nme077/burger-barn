@@ -3,11 +3,11 @@ import { useDrag, useDrop } from 'react-dnd';
 import { ItemTypes } from './ItemTypes'
 
 
-export const Item = ({item, index, deleteItem, showEditItem, id, moveItem, sortedMenu}) => {
+export const Item = ({item, index, deleteItem, showEditItem, id, moveItem, handleUpdateItemOrder, sortedMenu}) => {
 
     const ref = useRef(null);
 
-    const [{ handlerId }, drop] = useDrop({
+    const [{ handlerId }, drop] = useDrop(() => ({
       accept: ItemTypes.ITEM,
       collect(monitor) {
           return {
@@ -50,8 +50,8 @@ export const Item = ({item, index, deleteItem, showEditItem, id, moveItem, sorte
           // but it's good here for the sake of performance
           // to avoid expensive index searches.
           item.index = hoverIndex;
-      },
-  });
+      }
+  }),[sortedMenu]);
 
     const [{ isDragging }, drag] = useDrag(() => ({
       type: ItemTypes.ITEM,
@@ -62,9 +62,9 @@ export const Item = ({item, index, deleteItem, showEditItem, id, moveItem, sorte
           isDragging: monitor.isDragging()
         }),
        end: (item, monitor) => {
-           console.log(sortedMenu)
+            handleUpdateItemOrder();
        }
-    }));
+    }),[sortedMenu]); //Need state variables used within isDrag to be listed as dependencies
 
     drag(drop(ref));
 

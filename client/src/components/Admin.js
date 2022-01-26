@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from "react-router-dom";
+import update from 'immutability-helper';
 
 import { Item } from './Item.js'
 
@@ -48,7 +49,6 @@ function Admin() {
     function sortItems(a,b) {
       return a.order - b.order
     }
-    //const sortedMenu = menu.filter(item => {return item.category === categorySelect}).sort(sortItems);
   
     // Initialize the menu on page load
     useEffect(() => {
@@ -59,9 +59,6 @@ function Admin() {
             setMenu(data.menu);
             setCategorySelect(data.categories[0].name);
             setSortedMenu(data.menu.filter(item => {return item.category === data.categories[0].name}).sort(sortItems))
-          })
-          .then(()=> {
-            
           })
           .catch(() => {
             setMenu({error: 'Error fetching Menu'});
@@ -75,6 +72,7 @@ function Admin() {
           .then((data) => {
             setCategoryList(data.categories);
             setMenu(data.menu);
+            setSortedMenu(data.menu.filter(item => {return item.category === categorySelect}).sort(sortItems));
           })
           .catch(() => {
             setMenu({error: 'Error fetching Menu'});
@@ -86,7 +84,6 @@ function Admin() {
       fetch(baseURL + 'api/menu/'+itemId, {
         method: 'POST'
       }).then(() => {
-        console.log('deleting')
         getMenu();
       })
     }
@@ -135,25 +132,31 @@ function Admin() {
       setEditState(false);
     }
   
-    function handleAddItemSubmit(data) {
+    function handleAddItemSubmit(e) {
+      e.preventDefault();
+
       fetch(baseURL + 'api/menu', {
         method: 'POST',
         credentials: 'include',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
+        body: JSON.stringify(addItemData)
       }).then(() => {
         setDisplayInputForm(false); // Hide the input modal
+        clearItemInfo();
         getMenu();
       })
     }
     
-    function handleEditItemSubmit(data) {
-      fetch(baseURL + 'api/menu/edit/'+data.id, {
+    function handleEditItemSubmit(e, itemId) {
+      e.preventDefault();
+
+      fetch(baseURL + 'api/menu/edit/'+itemId, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
+        body: JSON.stringify(addItemData)
       }).then(() => {
         setDisplayInputForm(false); // Hide the input modal
+        clearItemInfo();
         getMenu();
       }).catch(() => {
         setDisplayInputForm(false); // Hide the input modal
@@ -161,42 +164,31 @@ function Admin() {
     }
 
     const moveItem = useCallback((dragIndex, hoverIndex) => {
-      //const dragItem = sortedMenu[dragIndex];
       const dragItem = sortedMenu[dragIndex];
-      //console.log('move '+dragItem.name + ' to ' + hoverIndex+'?');
       
-      //const newArr = [...sortedMenu]
-      const newArr = [...sortedMenu];
-
-      newArr.splice(dragIndex,1);
-      newArr.splice(hoverIndex,0,dragItem)
-
-      setSortedMenu(newArr)
-      return newArr;
-      //setCards(update(cards, {
-      //    $splice: [
-      //        [dragIndex, 1],
-      //        [hoverIndex, 0, dragItem],
-      //    ],
-      //}));
+      setSortedMenu(update(sortedMenu, {
+        $splice: [
+            [dragIndex, 1],
+            [hoverIndex, 0, dragItem],
+        ],
+      }));
     }, [sortedMenu]);
-  
-    // Create menu item route
-    //const createMenuItem = () => {
-    //  fetch(baseURL + '/api/menu', {
-    //    method: 'POST',
-    //    headers: {
-    //      'Content-Type': 'application/json',
-    //    },
-    //    body: JSON.stringify({
-    //      name: 'formData'
-    //    })
-    //  })
-    //    .then((res) => res.json())
-    //    .then((data) => {
-    //      setMenu(data);
-    //    })
-    //}
+
+    const handleUpdateItemOrder = useCallback(() => {
+      const itemsToUpdate = sortedMenu.map((el, index) => {
+        return {id: el._id, order: index, name:el.name}
+      })
+
+      fetch(baseURL + 'api/menu/edit/order', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(itemsToUpdate)
+      }).then(() => {
+        getMenu();
+      }).catch((err) => {
+        console.log(err)
+      })
+  }, [sortedMenu]);
   
     return (
       <div className="App">
@@ -242,19 +234,19 @@ function Admin() {
                               
                 <div className="menu-admin">
                   {menu.error ? <div className="error-menu">{menu.error}</div> : sortedMenu.map((item,ind) => 
-                    <Item item={item} index={ind} test="test" key={item._id} sortedMenu={sortedMenu} deleteItem={deleteItem} id={item._id} showEditItem={showEditItem} moveItem={moveItem} />)}
+                    <Item item={item} index={ind} test="test" key={item._id} deleteItem={deleteItem} id={item._id} showEditItem={showEditItem} moveItem={moveItem} handleUpdateItemOrder={handleUpdateItemOrder} sortedMenu={sortedMenu}/>)}
                 </div>
               </div>
           </div>
         </div>
         {displayInputForm ? 
           <div className="add-item-container">
-            <div className="add-item-inner">
+            <form className="add-item-inner" onSubmit={(e) => {editState ? handleEditItemSubmit(e, id) : handleAddItemSubmit(e)}}>
               <button className="btn-cancel" onClick={() => {setDisplayInputForm(false); clearItemInfo();}}><i className="fas fa-times"></i></button>
-              <input className="add-item-input" type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+              <input required className="add-item-input" type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
               <input className="add-item-input" type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-              <select className="add-item-input add-item-input-category" value={category} onChange={(e) => setCategory(e.target.value)}>
-                <option value="grapefruit">Select a Category</option>
+              <select required className="add-item-input add-item-input-category" value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="">Select a Category</option>
                 {categoryList.map(cat => {
                   return <option value={cat.name} key={cat._id}>{cat.name}</option>
                 })}
@@ -267,15 +259,8 @@ function Admin() {
                 <input className="add-item-input price-desc-input" type="text" placeholder="Price (3) description (optional)" value={priceDesc3} onChange={(e) => setPriceDesc3(e.target.value)} />
                 <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price3} onChange={(e) => setPrice3(e.target.value.replace(/[^\d.]/gi, ""))} />
               </div>
-              <input className="add-item-input" type="text" placeholder="Order" value={order} onChange={(e) => setOrder(e.target.value)} />
-              
-              {editState ? 
-                <button className="btn-add-item-submit" value="submit" onClick={() => handleEditItemSubmit(addItemData)}><span>Save changes</span></button>
-                : 
-                <button className="btn-add-item-submit" value="submit" onClick={() => handleAddItemSubmit(addItemData)}><span>Add item</span></button>
-              }
-            
-            </div>
+              <button className="btn-add-item-submit" value="submit"><span>{editState ? 'Save changes' : 'Add item'}</span></button>
+            </form>
           </div> 
           : null}
       </div>

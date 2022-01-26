@@ -51,7 +51,6 @@ function App() {
         const data = await res.json();
         setIsSubmitting(false);
         data.success ? setIsLoggedIn(true) : setIsLoggedIn(false);
-        console.log(isLoggedIn)
     }).catch(err => {
       setIsSubmitting(false);
       console.log(err);

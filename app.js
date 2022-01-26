@@ -1,3 +1,5 @@
+const { rmSync } = require('fs');
+
 const express = require('express'),
       app = express(),
       session = require('express-session'),
@@ -73,19 +75,38 @@ app.post('/api/menu', (req, res) => {
     //prices: [[String]],
     //description: String,
     //order: Number
-    
-    const newItem = {
-        name: req.body.name,
-        category: req.body.category,
-        prices: [[req.body.priceDesc1, req.body.price1], [req.body.priceDesc2, req.body.price2], [req.body.priceDesc3, req.body.price3]],
-        description: req.body.description,
-        order: req.body.order
-    }
-    MenuItem.create(newItem, (err, itemCreated) => {
-        if(err) return res.json({error: 'Error creating item'});
-    
-        res.json({success: 'New item created'});
+    MenuItem.find({category: req.body.category}, (err, menu) => {
+        const order = menu.length > 0 ? menu.length : 0;
+        const newItem = {
+            name: req.body.name,
+            category: req.body.category,
+            prices: [[req.body.priceDesc1, req.body.price1], [req.body.priceDesc2, req.body.price2], [req.body.priceDesc3, req.body.price3]],
+            description: req.body.description,
+            order: order
+        }
+        MenuItem.create(newItem, (err, itemCreated) => {
+            if(err) return res.json({error: 'Error creating item'});
+        
+            res.json({success: 'New item created'});
+        })
     })
+});
+
+// Update order of menu items
+app.post('/api/menu/edit/order', (req, res) => {
+    const itemsToUpdate = req.body;
+    const jsonMessage = '';
+
+    for(let el of itemsToUpdate) {
+        MenuItem.findByIdAndUpdate(el.id, { order: el.order }, (err, itemUpdated) => {
+            if(err) {
+                jsonMessage = {error: 'Error creating item'}
+                return
+            }
+        })
+    }
+
+    jsonMessage ? res.json(jsonMessage) : res.json({success: 'Items successfully updated'})
 });
 
 // Save changes to menu item
