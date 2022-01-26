@@ -1,206 +1,112 @@
 import './App.css';
-import * as Scroll from 'react-scroll';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
 } from "react-router-dom";
-import burger_1 from './assets/burger-1.jpeg'
-import burger_2 from './assets/burger-2.jpeg'
-import burger_3 from './assets/burger-3.jpeg'
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import Home from './components/Home';
+import Admin from './components/Admin';
+import Register from './components/Login/Register';
+
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
 
-let Link = Scroll.Link;
-
 function App() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    fetch(baseURL + '/logged_in', {
+      method: "GET",
+      credentials: 'include'
+    })
+    .then(async (res) => {
+      const data = await res.json();
+      setIsLoggedIn(data.userAuthenticated);
+    }).catch(err => {
+      console.log(err);
+    })
+  }, []);
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+
+    fetch(baseURL + '/login', {
+        method: "POST",
+        credentials: 'include',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password })
+    })
+    .then(async (res) => {
+        const data = await res.json();
+        setIsSubmitting(false);
+        data.success ? setIsLoggedIn(true) : setIsLoggedIn(false);
+    }).catch(err => {
+      setIsSubmitting(false);
+      console.log(err);
+    })
+}
 
   return (
     <Router>
-      <div>
-          <Switch>
-          <Route path="/test">
-              <div>Here is a test</div>
-            </Route>
-            <Route path="/admin">
-              <Admin menu />
-            </Route>
-            <Route path="/">
-              <Home menu />
-            </Route>
-          </Switch>
-      </div>
+        <Switch>
+          <Route path="/admin">
+            {!isLoggedIn ? 
+              <Redirect to="/login" /> : 
+              <DndProvider backend={HTML5Backend}>
+                <Admin />
+              </DndProvider>
+            }
+          </Route>
+          <Route path="/register">
+            {isLoggedIn ? <Redirect to="/admin" /> : <Register />}
+          </Route>
+          <Route path="/login">
+            {isLoggedIn ? <Redirect to="/admin" /> : 
+            <div className="login-wrapper">
+              <h1>Please Log In</h1>
+              <form onSubmit={handleFormSubmit}>
+              <label>
+                  <p>Email</p>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required/>
+                </label>
+                <label>
+                  <p>Password</p>
+                  <input type="password" value={password} onChange={e => setPassword(e.target.value)} required/>
+                </label>
+                <div>
+                  <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Logging in...' : 'Log in'}</button>
+                </div>
+                {error ?
+                  <div>
+                      <p className="error-message">{error}</p>
+                  </div>
+                : null}
+                <div></div>
+              </form>
+            </div>
+          }
+          </Route>
+          <Route exact path="/">
+            <Home menu />
+          </Route>
+          <Route path="*">
+            <Redirect to="/" />
+          </Route>
+        </Switch>
     </Router>
   );
 
-}
-
-function Home(data) {
-  const [menu, setMenu] = useState([])
-  const [menuSelection, setMenuSelection] = useState('hamburgers');
-
-  useEffect(() => {
-		fetch(baseURL + '/api/getMenu')
-			.then((res) => res.json())
-			.then((data) => {
-        setMenu(data);
-      })
-	}, [])
-
-  function updateMenuSelection(e) {
-    e.preventDefault();
-    const category = e.target.getAttribute('id');
-    e.target.classList.add('active-menu')
-
-    setMenuSelection(category);
-  }
-
-  return(
-    <div className="App">
-      <div className="wrapper">
-      <div className="header">
-          <div className="navbar">
-              <Link to="menu" className="nav-link" spy={true} smooth={true} duration={500}>Menu</Link>
-              <div className="header-logo">
-                  <i className="fas fa-hamburger"></i>
-              </div>
-              <Link to="map" className="nav-link" spy={true} smooth={true} duration={500}>Map</Link>
-          </div>
-          <div className="jumbotron">
-              <h6>Jeffersonville, VT</h6>
-              <div className="break"></div>
-              <h1>Burger Barn</h1>
-              <div className="break"></div>
-              <hr className="rectangle" />
-              <div className="break"></div>
-              <button className="order-btn">
-                  <a href="tel:(802)730-3441">Call to order</a>
-              </button>
-              <div className="break"></div>
-              <div className="hours-container">
-                <h5 className="hours">Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM</h5>
-              </div>
-              <div className="break"></div>
-              <div className="continue-btn-container">
-                  <Link to="menu" className="continue-link" spy={true} smooth={true} duration={500}>
-                      <i className="fas fa-angle-down"></i>
-                  </Link>
-              </div>
-              
-          </div>
-          
-          <div className="social-links">
-              <a href="https://www.facebook.com/BurgerbarnVT/" className="social-link" target="_blank" rel="noreferrer">
-                  <i className="fab fa-facebook-f"></i>
-              </a>
-          </div>
-          <hr className="header-line header-line-1" />
-          <hr className="header-line header-line-2" />
-          <hr className="header-line-vert header-line-vert-1" />
-          <hr className="header-line-vert header-line-vert-2"/>
-      </div>
-
-      <div className="menu-wrapper">
-          <div className="menu-container" id="menu">
-              <div className="menu-heading">
-                  <h2>Our Menu</h2>
-                  <div className="break"></div>
-                  <hr className="rectangle rectangle-menu" />
-                  <div className="break"></div>
-                  <h3>Local grass fed gourmet hamburgers & hand cut fries. <br /> 15+ different cheeses, fried food, call ahead for take out. BYOB.</h3>
-              </div>
-              <div className="menu-selection">
-                  <h5 className={"menu-select" + (menuSelection === 'hamburgers' ? ' active-menu' : '')} id="hamburgers" onClick={updateMenuSelection}>Hamburgers</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'seafood' ? ' active-menu' : '')} id="seafood" onClick={updateMenuSelection}>Seafood</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'fried' ? ' active-menu' : '')} id="fried" onClick={updateMenuSelection}>Fried Stuff</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'egg' ? ' active-menu' : '')} id="egg" onClick={updateMenuSelection}>Egg Sandwiches</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'veggie' ? ' active-menu' : '')} id="veggie" onClick={updateMenuSelection}>Veggie Options</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'sandwiches' ? ' active-menu' : '')} id="sandwiches" onClick={updateMenuSelection}>Sandwiches</h5>
-                  <div className="menu-hr"></div>
-                  <h5 className={"menu-select" + (menuSelection === 'dogs' ? ' active-menu' : '')} id="dogs" onClick={updateMenuSelection}>Dogs</h5>
-              </div>
-              <div className="menu-items-container">
-                  <div className="menu active-menu-section">
-                    {menu.filter(item => item.category === menuSelection).map((item,ind) => ( <MenuItem item={item} itemInd={ind} key={ind} />))}
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div className="photos-wrapper">
-          <img src={burger_1} alt="a burger" className="gallery-photo gallery-photo-1" key="burger_1" />
-          <img src={burger_3} alt="Outside of Burger Barn" className="gallery-photo gallery-photo-2" key="burger_3" />
-          <img src={burger_2} alt="Fries" className="gallery-photo gallery-photo-4" key="burger_2" />
-      </div>
-
-      <iframe
-          title="map"
-          id="map"
-          width="100%"
-          height="600px"
-          style={{"border":0}}
-          loading="lazy"
-          allowFullScreen
-          src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCOpy1kHsjfQ1fhffc0j22beWG_8iuBE2o&q=Burger+barn+vermont">
-      </iframe>
-
-      <footer>
-          <div className="copyright">&copy; Copyright Nicholas Eveland {new Date().getFullYear()}</div>
-      </footer>
-      </div>
-    </div>
-  )
-}
-
-function Admin() {
-  return (
-    <div className="App">
-      <div className="wrapper">
-        <div id="sidebar">
-            <div className="sidebar-heading">
-                <i className="fas fa-hamburger sidebar-heading-icon"></i>
-                <h3 className="sidebar-heading-title">Admin Panel</h3>
-            </div>
-            <div className="sidebar-selection-container">
-                <a className="sidebar-selection active" href="#menu">
-                    <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
-                </a>
-                <a className="sidebar-selection" href="#hours">
-                    <i className="far fa-clock sidebar-selection-icon"></i> Hours
-                </a>
-            </div>
-        </div>
-
-        <div className="main">
-            <div className="main-container">
-                
-            </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MenuItem(item, itemInd) {
-  item = item.item;
-
-  return(
-    <div className="menu-item">
-      <div className="menu-item-line-1">
-          <span className="menu-item-name">{item.name ? item.name : ''}</span>
-          {item.prices.map((price, ind) => {
-            return <span className="menu-item-price" key={ind}>.... { price[0] } {price[1]}</span>
-          })}
-      </div>
-      <div className="menu-item-description">{item.description ? item.description : ''}</div>
-    </div>
-  )
 }
 
 export default App;
