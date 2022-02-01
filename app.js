@@ -1,4 +1,4 @@
-const { rmSync } = require('fs');
+const joinToken = require('./models/joinToken');
 
 const express = require('express'),
       app = express(),
@@ -11,8 +11,11 @@ const express = require('express'),
       MenuItem = require('./models/menuItem'),
       User = require('./models/user.js'),
       Category = require('./models/category'),
+      JoinToken = require('./models/joinToken'),
+      middleware = require('./middleware'),
       dotenv = require('dotenv').config(),
-      mongoose = require('mongoose');
+      mongoose = require('mongoose'),
+      crypto = require('crypto');
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:3000';
 // App config
@@ -69,12 +72,7 @@ app.get('/api/menu', (req, res) => {
 });
 
 // Add menu item
-app.post('/api/menu', (req, res) => {
-    //name: String,
-    //category: String,
-    //prices: [[String]],
-    //description: String,
-    //order: Number
+app.post('/api/menu', middleware.isLoggedIn, (req, res) => {
     MenuItem.find({category: req.body.category}, (err, menu) => {
         const order = menu.length > 0 ? menu.length : 0;
         const newItem = {
@@ -93,7 +91,7 @@ app.post('/api/menu', (req, res) => {
 });
 
 // Update order of menu items
-app.post('/api/menu/edit/order', (req, res) => {
+app.post('/api/menu/edit/order', middleware.isLoggedIn, (req, res) => {
     const itemsToUpdate = req.body;
     const jsonMessage = '';
 
@@ -110,7 +108,7 @@ app.post('/api/menu/edit/order', (req, res) => {
 });
 
 // Save changes to menu item
-app.post('/api/menu/edit/:id', (req, res) => {
+app.post('/api/menu/edit/:id', middleware.isLoggedIn, (req, res) => {
     const item = {
         name: req.body.name,
         category: req.body.category,
@@ -126,7 +124,7 @@ app.post('/api/menu/edit/:id', (req, res) => {
 });
 
 // Delete menu item
-app.post('/api/menu/:id', (req, res) => {
+app.post('/api/menu/:id', middleware.isLoggedIn, (req, res) => {
     MenuItem.findByIdAndDelete(req.params.id, err => {
         if(err) return res.json({error: 'Error deleting item'});
 
@@ -134,36 +132,55 @@ app.post('/api/menu/:id', (req, res) => {
     })
 });
 
-// Add category
-app.post('/api/menu/category', (req, res) => {
-
-});
-
-// Edit category
-app.put('/api/menu/category/:id', (req, res) => {
-    
-});
-
-// Delete category
-app.delete('/api/menu/category/:id', (req, res) => {
-    
-});
+//// Add category
+//app.post('/api/menu/category', middleware.isLoggedIn, (req, res) => {
+//
+//});
+//
+//// Edit category
+//app.put('/api/menu/category/:id', middleware.isLoggedIn, (req, res) => {
+//    
+//});
+//
+//// Delete category
+//app.delete('/api/menu/category/:id', middleware.isLoggedIn, (req, res) => {
+//    
+//});
 
 // Handle registration logic
-// UPDATE THIS TO REQUIRE A TOKEN TO REGISTER
-app.post('/register', (req, res) => {
+// TOKEN REQUIRED TO REGISTER
+app.post('/register', (req, res, next) => {
     const userInfo = {
         firstName: req.body.firstName,
         email: req.body.email
     };
 
-    User.register(new User(userInfo), req.body.password, (err) => {
-        if(err) return res.json({error: err.message});
-    
-        passport.authenticate('local')(req, res, () => {
-            return res.json({success: `Welcome, ${req.user.email}!`});
-        });
-    });
+    JoinToken.findOne({token: req.body.token}, (err, foundToken) => {
+        if(err) return res.json({error: "Token is invalid"});
+
+        if(!foundToken) return res.json({error: "Token is invalid"})
+
+        if(Date.now() <= foundToken.tokenExpires && foundToken.email === userInfo.email) {
+            User.register(new User(userInfo), req.body.password, (err) => {
+                if(err) return res.json({error: err.message});
+            
+                passport.authenticate('local', (err, user, info) => {
+                    if(err) return res.json({error: err});
+                    if(!user) return res.json({error: info});
+                    req.logIn(user, err => {
+                        if(err) return res.json({error: err});
+                        // Delete the token 
+                        JoinToken.deleteOne({token: foundToken.token}).then(() => {
+                            res.json({success: 'You are now logged in!'});
+                            return
+                        })
+                    })
+                })(req, res, next);
+            });
+        } else {
+            return res.json({error: "Token is invalid or expired"})
+        }
+    })
 });
 
 // Handle login
@@ -173,7 +190,7 @@ app.post('/login', (req, res, next) => {
         if(!user) return res.json({error: info});
         req.logIn(user, err => {
             if(err) return res.json({error: err});
-            res.json({success: 'You are now logged in!'});
+            res.json({success: 'You are now logged in!', userInfo: user});
             return
         })
     })(req, res, next);
@@ -182,13 +199,37 @@ app.post('/login', (req, res, next) => {
 app.get('/logged_in', (req, res) => {
     const userAuthenticated = req.isAuthenticated();
 
-    return res.json({userAuthenticated: userAuthenticated});
+    return res.json({userAuthenticated: userAuthenticated, userInfo: req.user});
 })
 
 app.post('/logout', (req, res) => {
     req.logout();
     return res.json({success: 'User logged out'});
 })
+
+app.post('/createToken', middleware.isLoggedIn, (req, res) => {
+    // Only specified user may add other users. 
+    // Update in the future to store this list elsewhere
+    if(req.user._id.toString() === '61e0b04b7eee8da38ef13f37') {
+        crypto.randomBytes(20, (err, buf) => {
+            const token = buf.toString('hex');
+            if(err) return res.json({error: "Error generating token"});
+    
+            const joinToken = {
+                token: token,
+                tokenExpires: Date.now() + 3600000, // 1 hour
+                email: req.body.email
+            }
+            JoinToken.create(joinToken, (err, token) => {
+                if(err) return res.json({error: "Error generating token"});
+    
+                return res.json(token);
+            })
+        });
+    } else {
+        res.json({error: 'User not allowed to generate tokens.'})
+    }
+});
 
 
 const root = require('path').join(__dirname, 'client', 'build')
