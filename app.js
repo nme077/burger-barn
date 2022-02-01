@@ -1,5 +1,3 @@
-const joinToken = require('./models/joinToken');
-
 const express = require('express'),
       app = express(),
       session = require('express-session'),
