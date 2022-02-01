@@ -11,16 +11,16 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import Home from './components/Home';
 import Admin from './components/Admin';
 import Register from './components/Login/Register';
+import Login from './components/Login/Login';
+import GenerateToken from './components/GenerateToken';
 
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
 
 function App() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -30,72 +30,33 @@ function App() {
     })
     .then(async (res) => {
       const data = await res.json();
+      if(data.error) return setError(data.error.message);
       setIsLoggedIn(data.userAuthenticated);
+      data.userInfo && data.userInfo._id === '61e0b04b7eee8da38ef13f37' ? setIsAdminUser(true) : setIsAdminUser(false)
     }).catch(err => {
-      console.log(err);
+      return setError(err);
     })
   }, []);
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-
-    fetch(baseURL + '/login', {
-        method: "POST",
-        credentials: 'include',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password })
-    })
-    .then(async (res) => {
-        const data = await res.json();
-        setIsSubmitting(false);
-        data.success ? setIsLoggedIn(true) : setIsLoggedIn(false);
-    }).catch(err => {
-      setIsSubmitting(false);
-      console.log(err);
-    })
-}
 
   return (
     <Router>
         <Switch>
-          <Route path="/admin">
+          <Route exact path="/createToken">
+            {isAdminUser ? <GenerateToken /> : <div style={{color: "red"}}>Access Denied.</div>}
+          </Route>
+          <Route exact path="/admin">
             {!isLoggedIn ? 
               <Redirect to="/login" /> : 
               <DndProvider backend={HTML5Backend}>
-                <Admin />
+                <Admin isAdminUser={isAdminUser} isLoggedIn={isLoggedIn} />
               </DndProvider>
             }
           </Route>
-          <Route path="/register">
-            {isLoggedIn ? <Redirect to="/admin" /> : <Register />}
+          <Route exact path="/register">
+            {isLoggedIn ? <Redirect to="/admin" /> : <Register setIsLoggedIn={setIsLoggedIn} />}
           </Route>
-          <Route path="/login">
-            {isLoggedIn ? <Redirect to="/admin" /> : 
-            <div className="login-wrapper">
-              <h1>Please Log In</h1>
-              <form onSubmit={handleFormSubmit}>
-              <label>
-                  <p>Email</p>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required/>
-                </label>
-                <label>
-                  <p>Password</p>
-                  <input type="password" value={password} onChange={e => setPassword(e.target.value)} required/>
-                </label>
-                <div>
-                  <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Logging in...' : 'Log in'}</button>
-                </div>
-                {error ?
-                  <div>
-                      <p className="error-message">{error}</p>
-                  </div>
-                : null}
-                <div></div>
-              </form>
-            </div>
-          }
+          <Route exact path="/login">
+            {isLoggedIn ? <Redirect to="/admin" /> : <Login setError={setError} error={error} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} setIsAdminUser={setIsAdminUser} />}
           </Route>
           <Route exact path="/">
             <Home menu />

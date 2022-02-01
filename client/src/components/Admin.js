@@ -9,7 +9,7 @@ import CurrencyInput from 'react-currency-input-field';
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com/' : 'http://localhost:9000/';
 
-function Admin() {
+function Admin({isAdminUser}) {
     // State variables
     const [menu, setMenu] = useState([]);
     const [displayInputForm, setDisplayInputForm] = useState(false);
@@ -82,6 +82,7 @@ function Admin() {
     // Delete menu item route
     function deleteItem(itemId) {
       fetch(baseURL + 'api/menu/'+itemId, {
+        credentials: 'include',
         method: 'POST'
       }).then(() => {
         getMenu();
@@ -152,6 +153,7 @@ function Admin() {
 
       fetch(baseURL + 'api/menu/edit/'+itemId, {
         method: 'POST',
+        credentials: 'include',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(addItemData)
       }).then(() => {
@@ -181,9 +183,12 @@ function Admin() {
 
       fetch(baseURL + 'api/menu/edit/order', {
         method: 'POST',
+        credentials: 'include',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(itemsToUpdate)
-      }).then(() => {
+      }).then((res) => {
+        const response = res.json();
+        if(response.error) console.log(response.error)
         getMenu();
       }).catch((err) => {
         console.log(err)
@@ -201,6 +206,17 @@ function Admin() {
               <div className="sidebar-selection-container">
                   <a className="sidebar-selection active" href="/admin">
                       <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
+                  </a>
+              </div>
+              {isAdminUser ?
+              <div className="sidebar-selection-container">
+                  <a className="sidebar-selection" href="/createToken">
+                      <i className="fas fa-key sidebar-selection-icon"></i> Generate Token
+                  </a>
+              </div> : null}
+              <div className="sidebar-selection-container">
+                  <a className="sidebar-selection" href="/">
+                      <i className="fas fa-home sidebar-selection-icon"></i> Home
                   </a>
               </div>
               <div className="sidebar-selection-container logout">
@@ -259,7 +275,7 @@ function Admin() {
                 <input className="add-item-input price-desc-input" type="text" placeholder="Price (3) description (optional)" value={priceDesc3} onChange={(e) => setPriceDesc3(e.target.value)} />
                 <CurrencyInput prefix="$ " className="add-item-input price-input" placeholder="$ 0.00" value={price3} onChange={(e) => setPrice3(e.target.value.replace(/[^\d.]/gi, ""))} />
               </div>
-              <button className="btn-add-item-submit" value="submit"><span>{editState ? 'Save changes' : 'Add item'}</span></button>
+              <button className="btn-add-item-submit" value="submit" style={{background: name !== '' && category !== '' ? '#2F80ED' : 'rgba(164, 166, 179, 0.25)'}}><span>{editState ? 'Save changes' : 'Add item'}</span></button>
             </form>
           </div> 
           : null}

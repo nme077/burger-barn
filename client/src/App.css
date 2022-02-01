@@ -392,8 +392,9 @@ footer {
 .sidebar-heading-title {
   color: #A4A6B3; }
 
-.sidebar-selection-container {
-  margin-top: 40px; }
+.sidebar-heading {
+  margin-bottom: 40px;
+}
 
 .sidebar-selection {
   height: 56px;
@@ -439,10 +440,13 @@ footer {
   border: 2px solid #DFE0EB;
   box-sizing: border-box;
   border-radius: 8px;
-  padding-bottom: 10px;
   padding-top: 10px;
   font-family: Avenir;
   font-weight: 200; 
+}
+
+.menu-admin>div:last-child>div {
+  border-bottom: none;
 }
 
 .admin-menu-item {
@@ -487,6 +491,7 @@ footer {
 
 /** Admin columns **/
 .col-admin {
+  box-sizing: border-box;
   padding: 5px;
   font-size: 14px;
 }
@@ -658,21 +663,13 @@ footer {
   margin-bottom: 20px;
   font-family: Avenir;
   font-size: 16px;
-  color: #DDE2FF;
+  color: #f7f8ff;
   border: none;
   border-radius: 5px;
   mix-blend-mode: difference;
   background-color:#A7ABBF;
   cursor: pointer;
 }
-
-.btn-add-item-submit:hover {
- background-color: rgba(164, 166, 179, 0.25);
-}
-
-.btn-add-item-submit span {
-  mix-blend-mode: difference;
- }
 
 .btn-cancel {
   position: relative;
@@ -688,11 +685,54 @@ footer {
 }
 
 /** Login Page **/
-.login-wrapper {
+.auth-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+  padding: 20px;
+  background-color: #363740;
+  color: white;
+  border-radius: 5px;
+}
+
+.auth-form-input {
+  height: 20px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 15px;
+  font-family: Avenir;
+  font-size: 16px;
+  background-color: rgba(164, 166, 179, 0.25);
+  color: #DDE2FF;
+  border: none;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.auth-form-btn {
+  box-sizing: border-box;
+  height: 30px;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-family: Avenir;
+  font-size: 16px;
+  color: #f7f8ff;
+  border: none;
+  border-radius: 5px;
+  mix-blend-mode: difference;
+  background-color:#A7ABBF;
+  cursor: pointer;
 }
 
 .error-message {
