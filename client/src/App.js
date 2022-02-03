@@ -13,9 +13,8 @@ import Admin from './components/Admin';
 import Register from './components/Login/Register';
 import Login from './components/Login/Login';
 import GenerateToken from './components/GenerateToken';
+import httpRequestUrl from './httpRequestUrl';
 
-
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
 
 function App() {
   const [error, setError] = useState('');
@@ -24,7 +23,7 @@ function App() {
 
   // Check if user is authenticated
   useEffect(() => {
-    fetch(baseURL + '/logged_in', {
+    fetch(httpRequestUrl+ '/logged_in', {
       method: "GET",
       credentials: 'include'
     })
