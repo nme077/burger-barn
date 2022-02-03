@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
+import httpRequestUrl from '../../httpRequestUrl';
 
 export default function Login({setError, error, setIsLoggedIn, setIsAdminUser}) {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -12,7 +11,7 @@ export default function Login({setError, error, setIsLoggedIn, setIsAdminUser}) 
         setIsSubmitting(true);
         setError('');
     
-        fetch(baseURL + '/login', {
+        fetch(httpRequestUrl + '/login', {
             method: "POST",
             credentials: 'include',
             headers: { "Content-Type": "application/json" },

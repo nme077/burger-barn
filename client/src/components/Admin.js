@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from "react-router-dom";
 import update from 'immutability-helper';
 
-import { Item } from './Item.js'
+import { Item } from './Item.js';
+import httpRequestUrl from '../httpRequestUrl.js';
 
 import CurrencyInput from 'react-currency-input-field';
+import GenerateToken from './GenerateToken.js';
 
-
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com/' : 'http://localhost:9000/';
 
 function Admin({isAdminUser}) {
     // State variables
@@ -52,7 +52,7 @@ function Admin({isAdminUser}) {
   
     // Initialize the menu on page load
     useEffect(() => {
-      fetch(baseURL + 'api/menu')
+      fetch(httpRequestUrl + '/api/menu')
           .then((res) => res.json())
           .then((data) => {
             setCategoryList(data.categories);
@@ -66,8 +66,8 @@ function Admin({isAdminUser}) {
     },[]);
 
     // Fetch the menu
-    function getMenu() {
-        fetch(baseURL + 'api/menu')
+     const getMenu = useCallback(() => {
+        fetch(httpRequestUrl + '/api/menu')
           .then((res) => res.json())
           .then((data) => {
             setCategoryList(data.categories);
@@ -77,11 +77,11 @@ function Admin({isAdminUser}) {
           .catch(() => {
             setMenu({error: 'Error fetching Menu'});
           })
-    }
+    },[categorySelect])
     
     // Delete menu item route
     function deleteItem(itemId) {
-      fetch(baseURL + 'api/menu/'+itemId, {
+      fetch(httpRequestUrl + '/api/menu/'+itemId, {
         credentials: 'include',
         method: 'POST'
       }).then(() => {
@@ -91,7 +91,7 @@ function Admin({isAdminUser}) {
 
     //Logout
     function logout(e) {
-      fetch(baseURL + 'logout', {
+      fetch(httpRequestUrl + '/logout', {
         method: 'POST',
         credentials: 'include',
         headers: { "Content-Type": "application/json" }
@@ -136,7 +136,7 @@ function Admin({isAdminUser}) {
     function handleAddItemSubmit(e) {
       e.preventDefault();
 
-      fetch(baseURL + 'api/menu', {
+      fetch(httpRequestUrl + '/api/menu', {
         method: 'POST',
         credentials: 'include',
         headers: {'Content-Type': 'application/json'},
@@ -151,7 +151,7 @@ function Admin({isAdminUser}) {
     function handleEditItemSubmit(e, itemId) {
       e.preventDefault();
 
-      fetch(baseURL + 'api/menu/edit/'+itemId, {
+      fetch(httpRequestUrl + '/api/menu/edit/'+itemId, {
         method: 'POST',
         credentials: 'include',
         headers: {'Content-Type': 'application/json'},
@@ -181,7 +181,7 @@ function Admin({isAdminUser}) {
         return {id: el._id, order: index, name:el.name}
       })
 
-      fetch(baseURL + 'api/menu/edit/order', {
+      fetch(httpRequestUrl + '/api/menu/edit/order', {
         method: 'POST',
         credentials: 'include',
         headers: {'Content-Type': 'application/json'},
@@ -193,7 +193,7 @@ function Admin({isAdminUser}) {
       }).catch((err) => {
         console.log(err)
       })
-  }, [sortedMenu]);
+  }, [sortedMenu, getMenu]);
   
     return (
       <div className="App">
@@ -228,6 +228,7 @@ function Admin({isAdminUser}) {
   
           <div className="main">
               <div className="main-container">
+
                 <div className="header-container">
                   <select className="category-select" value={categorySelect} onChange={(e) => {setCategorySelect(e.target.value); setSortedMenu(menu.filter(item => {return item.category === e.target.value}).sort(sortItems))}}>
                     {categoryList.map(cat => {
@@ -252,6 +253,7 @@ function Admin({isAdminUser}) {
                   {menu.error ? <div className="error-menu">{menu.error}</div> : sortedMenu.map((item,ind) => 
                     <Item item={item} index={ind} test="test" key={item._id} deleteItem={deleteItem} id={item._id} showEditItem={showEditItem} moveItem={moveItem} handleUpdateItemOrder={handleUpdateItemOrder} sortedMenu={sortedMenu}/>)}
                 </div>
+
               </div>
           </div>
         </div>

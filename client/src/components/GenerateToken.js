@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
+import httpRequestUrl from '../httpRequestUrl';
 
 export default function GenerateToken() {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -14,7 +13,7 @@ export default function GenerateToken() {
         e.preventDefault();
         setIsSubmitting(true);
 
-        fetch(baseURL + '/createToken', {
+        fetch(httpRequestUrl + '/createToken', {
             method: "POST",
             credentials: 'include',
             headers: { "Content-Type": "application/json" },

@@ -15,7 +15,8 @@ const express = require('express'),
       mongoose = require('mongoose'),
       crypto = require('crypto');
 
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:3000';
+const httpRequestUrl = require('./httpRequestUrl');
+
 // App config
 app.use(express.urlencoded({extended: true}));
 // parse application/json
@@ -33,7 +34,7 @@ mongoose.connect(process.env.URI, {useNewUrlParser: true, useUnifiedTopology: tr
 
 // CORS setup
 app.use(cors({
-    origin: baseURL,
+    origin: httpRequestUrl,
     credentials: true
 }));
 // Session

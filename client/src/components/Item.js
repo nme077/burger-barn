@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { ItemTypes } from './ItemTypes'
 
-
 export const Item = ({item, index, deleteItem, showEditItem, id, moveItem, handleUpdateItemOrder, sortedMenu}) => {
 
     const ref = useRef(null);

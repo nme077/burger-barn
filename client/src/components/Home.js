@@ -1,12 +1,12 @@
 import * as Scroll from 'react-scroll';
 import React, { useState, useEffect } from 'react';
+import httpRequestUrl from '../httpRequestUrl';
 
 import burger_1 from '../assets/burger-1.jpeg'
 import burger_2 from '../assets/burger-2.jpeg'
 import burger_3 from '../assets/burger-3.jpeg'
 
 let Link = Scroll.Link;
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://burger-barn-1827.herokuapp.com' : 'http://localhost:9000';
 
 const sortItems = (a,b) => {
   return a.order - b.order
@@ -18,7 +18,7 @@ function Home() {
   
     // Fetch the menu
     function getMenu() {
-      fetch(baseURL + '/api/menu')
+      fetch(httpRequestUrl + '/api/menu')
         .then((res) => res.json())
         .then((data) => {
           setMenu(data.menu);
