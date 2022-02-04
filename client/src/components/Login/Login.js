@@ -22,7 +22,7 @@ export default function Login({setError, error, setIsLoggedIn, setIsAdminUser}) 
             setIsSubmitting(false);
             if(data.error) setError(data.error.message)//return setError(data.error);
             data.success ? setIsLoggedIn(true) : setIsLoggedIn(false);
-            data.userInfo && data.userInfo._id === '61e0b04b7eee8da38ef13f37' ? setIsAdminUser(true) : setIsAdminUser(false)
+            data.userInfo && data.userInfo._id === '61fc95746205e701303f5e82' ? setIsAdminUser(true) : setIsAdminUser(false)
         }).catch(err => {
           setIsSubmitting(false);
           if(err) return setError(err);
