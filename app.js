@@ -209,7 +209,7 @@ app.post('/logout', (req, res) => {
 app.post('/createToken', middleware.isLoggedIn, (req, res) => {
     // Only specified user may add other users. 
     // Update in the future to store this list elsewhere
-    if(req.user._id.toString() === '61e0b04b7eee8da38ef13f37') {
+    if(req.user._id.toString() === process.env.ADMIN_USER_ID) {
         crypto.randomBytes(20, (err, buf) => {
             const token = buf.toString('hex');
             if(err) return res.json({error: "Error generating token"});
