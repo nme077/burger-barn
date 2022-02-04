@@ -3,6 +3,7 @@
 <p align="center">
   <a href="https://cardapp77.herokuapp.com/">
     <h1>Burger Barn</h1>
+    <img src="/client/src/assets/burger-barn-winter-1.jpeg" style="width: 300px";>
   </a>
 
   <p align="center">
