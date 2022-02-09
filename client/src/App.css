@@ -746,3 +746,11 @@ footer {
 .error-message {
   color: red;
 }
+
+.loadingPage {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

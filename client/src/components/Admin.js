@@ -6,8 +6,6 @@ import { Item } from './Item.js';
 import httpRequestUrl from '../httpRequestUrl.js';
 
 import CurrencyInput from 'react-currency-input-field';
-import GenerateToken from './GenerateToken.js';
-
 
 function Admin({isAdminUser}) {
     // State variables
