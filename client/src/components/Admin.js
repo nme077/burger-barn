@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from "react-router-dom";
 import update from 'immutability-helper';
+import RotateLoader from "react-spinners/RotateLoader";
 
 import { Item } from './Item.js';
 import httpRequestUrl from '../httpRequestUrl.js';
@@ -26,6 +27,7 @@ function Admin({isAdminUser}) {
     const [editState, setEditState] = useState(false);
     const [categorySelect, setCategorySelect] = useState(''); // Category to display on admin page
     const [sortedMenu, setSortedMenu] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     // End state variables
   
     const addItemData = {
@@ -56,10 +58,12 @@ function Admin({isAdminUser}) {
             setCategoryList(data.categories);
             setMenu(data.menu);
             setCategorySelect(data.categories[0].name);
-            setSortedMenu(data.menu.filter(item => {return item.category === data.categories[0].name}).sort(sortItems))
+            setSortedMenu(data.menu.filter(item => {return item.category === data.categories[0].name}).sort(sortItems));
+            setIsLoading(false)
           })
           .catch(() => {
             setMenu({error: 'Error fetching Menu'});
+            setIsLoading(false);
           })
     },[]);
 
@@ -71,9 +75,11 @@ function Admin({isAdminUser}) {
             setCategoryList(data.categories);
             setMenu(data.menu);
             setSortedMenu(data.menu.filter(item => {return item.category === categorySelect}).sort(sortItems));
+            setIsLoading(false);
           })
           .catch(() => {
             setMenu({error: 'Error fetching Menu'});
+            setIsLoading(false);
           })
     },[categorySelect])
     
@@ -226,11 +232,12 @@ function Admin({isAdminUser}) {
   
           <div className="main">
               <div className="main-container">
-
                 <div className="header-container">
                   <select className="category-select" value={categorySelect} onChange={(e) => {setCategorySelect(e.target.value); setSortedMenu(menu.filter(item => {return item.category === e.target.value}).sort(sortItems))}}>
-                    {categoryList.map(cat => {
-                      return <option value={cat.name} key={cat._id}>{cat.name}</option>
+                    {isLoading ? 
+                      <option value="Loading..." key="1">Loading...</option> :
+                      categoryList.map(cat => {
+                        return <option value={cat.name} key={cat._id}>{cat.name}</option>
                     })}
                   </select>
                   <div className="heading-btn-container">
@@ -246,12 +253,13 @@ function Admin({isAdminUser}) {
                   <div className="col-admin col-5-admin"></div>
                   <div className="col-admin col-6-admin"></div>
                 </div>
-                              
+                {/* Menu */}   
                 <div className="menu-admin">
-                  {menu.error ? <div className="error-menu">{menu.error}</div> : sortedMenu.map((item,ind) => 
-                    <Item item={item} index={ind} test="test" key={item._id} deleteItem={deleteItem} id={item._id} showEditItem={showEditItem} moveItem={moveItem} handleUpdateItemOrder={handleUpdateItemOrder} sortedMenu={sortedMenu}/>)}
+                  {isLoading? <div className="menuLoading"><RotateLoader /></div>:
+                    menu.error ? <div className="error-menu">{menu.error}</div> : sortedMenu.map((item,ind) => 
+                      <Item item={item} index={ind} test="test" key={item._id} deleteItem={deleteItem} id={item._id} showEditItem={showEditItem} moveItem={moveItem} handleUpdateItemOrder={handleUpdateItemOrder} sortedMenu={sortedMenu}/>)}
                 </div>
-
+                {/* End Menu */}
               </div>
           </div>
         </div>
