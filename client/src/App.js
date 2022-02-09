@@ -13,13 +13,15 @@ import Admin from './components/Admin';
 import Register from './components/Login/Register';
 import Login from './components/Login/Login';
 import GenerateToken from './components/GenerateToken';
+import Loading from './components/Loading';
+import AccessDenied from './components/AccessDenied';
 import httpRequestUrl from './httpRequestUrl';
 
 
 function App() {
   const [error, setError] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const [isAdminUser, setIsAdminUser] = useState(null);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -41,21 +43,26 @@ function App() {
     <Router>
         <Switch>
           <Route exact path="/createToken">
-            {isAdminUser ? <GenerateToken /> : <div style={{color: "red"}}>Access Denied.</div>}
+            {isLoggedIn === null ? <Loading /> : 
+              !isLoggedIn ? <Redirect to="/login" /> :
+              isAdminUser ? <GenerateToken /> : <AccessDenied />}
           </Route>
           <Route exact path="/admin">
-            {!isLoggedIn ? 
-              <Redirect to="/login" /> : 
-              <DndProvider backend={HTML5Backend}>
-                <Admin isAdminUser={isAdminUser} isLoggedIn={isLoggedIn} />
-              </DndProvider>
+            {isLoggedIn === null ? <Loading /> : 
+              !isLoggedIn ? <Redirect to="/login" /> : 
+                <DndProvider backend={HTML5Backend}>
+                  <Admin isAdminUser={isAdminUser} isLoggedIn={isLoggedIn} />
+                </DndProvider>
             }
           </Route>
           <Route exact path="/register">
-            {isLoggedIn ? <Redirect to="/admin" /> : <Register setIsLoggedIn={setIsLoggedIn} />}
+            {isLoggedIn === null ? <Loading /> : isLoggedIn ? <Redirect to="/admin" /> : <Register setIsLoggedIn={setIsLoggedIn} />}
           </Route>
           <Route exact path="/login">
-            {isLoggedIn ? <Redirect to="/admin" /> : <Login setError={setError} error={error} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} setIsAdminUser={setIsAdminUser} />}
+            {isLoggedIn === null ? <Loading /> : 
+              isLoggedIn ? <Redirect to="/admin" /> : 
+              <Login setError={setError} error={error} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} setIsAdminUser={setIsAdminUser} />
+            }
           </Route>
           <Route exact path="/">
             <Home menu />

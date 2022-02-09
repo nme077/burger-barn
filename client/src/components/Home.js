@@ -1,5 +1,6 @@
 import * as Scroll from 'react-scroll';
 import React, { useState, useEffect } from 'react';
+import RotateLoader from "react-spinners/RotateLoader";
 import httpRequestUrl from '../httpRequestUrl';
 
 import burger_1 from '../assets/burger-1.jpeg'
@@ -14,7 +15,9 @@ const sortItems = (a,b) => {
 
 function Home() {
     const [menu, setMenu] = useState([]);
-    const [menuSelection, setMenuSelection] = useState('hamburgers');
+    const [categoryList, setCategoryList] = useState([]);
+    const [menuSelection, setMenuSelection] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
   
     // Fetch the menu
     function getMenu() {
@@ -22,9 +25,13 @@ function Home() {
         .then((res) => res.json())
         .then((data) => {
           setMenu(data.menu);
+          setCategoryList(data.categories);
+          setMenuSelection(data.categories[0].name);
+          setIsLoading(false);
         })
         .catch((err) => {
           setMenu({error: 'Error fetching Menu'});
+          setIsLoading(false);
       })
     }
 
@@ -36,7 +43,6 @@ function Home() {
     function updateMenuSelection(e) {
       e.preventDefault();
       const category = e.target.getAttribute('id');
-      e.target.classList.add('active-menu')
   
       setMenuSelection(category);
     }
@@ -96,22 +102,18 @@ function Home() {
                     <h3>Local grass fed gourmet hamburgers & hand cut fries. <br /> 15+ different cheeses, fried food, call ahead for take out. BYOB.</h3>
                 </div>
                 <div className="menu-selection">
-                    <h5 className={"menu-select" + (menuSelection === 'hamburgers' ? ' active-menu' : '')} id="hamburgers" onClick={updateMenuSelection}>Hamburgers</h5>
-                    <div className="menu-hr"></div>
-                    <h5 className={"menu-select" + (menuSelection === 'seafood' ? ' active-menu' : '')} id="seafood" onClick={updateMenuSelection}>Seafood</h5>
-                    <div className="menu-hr"></div>
-                    <h5 className={"menu-select" + (menuSelection === 'fried' ? ' active-menu' : '')} id="fried" onClick={updateMenuSelection}>Fried Stuff</h5>
-                    <div className="menu-hr"></div>
-                    <h5 className={"menu-select" + (menuSelection === 'egg' ? ' active-menu' : '')} id="egg" onClick={updateMenuSelection}>Egg Sandwiches</h5>
-                    <div className="menu-hr"></div>
-                    <h5 className={"menu-select" + (menuSelection === 'veggie' ? ' active-menu' : '')} id="veggie" onClick={updateMenuSelection}>Veggie Options</h5>
-                    <div className="menu-hr"></div>
-                    <h5 className={"menu-select" + (menuSelection === 'sandwiches' ? ' active-menu' : '')} id="sandwiches" onClick={updateMenuSelection}>Sandwiches</h5>
-                    <div className="menu-hr"></div>
-                    <h5 className={"menu-select" + (menuSelection === 'dogs' ? ' active-menu' : '')} id="dogs" onClick={updateMenuSelection}>Dogs</h5>
+                    {categoryList.map((cat, index) => {
+                        return (
+                          <>
+                          <h5 className={"menu-select" + (menuSelection === cat.name ? ' active-menu' : '')} id={cat.name} onClick={updateMenuSelection}>{cat.displayName}</h5>
+                          {index >= 0 && index < categoryList.length -1 ? <div className="menu-hr"></div> : null}
+                          </>
+                        )
+                    })}
                 </div>
                 <div className="menu-items-container">
-                  {menu.error ? <div className="error-menu">{menu.error}</div> : 
+                {isLoading? <div className="menuLoading"><RotateLoader /></div> :
+                  menu.error ? <div className="error-menu">{menu.error}</div> : 
                     <div className="menu active-menu-section">
                       {menu.filter(item => item.category === menuSelection).sort(sortItems).map((item,ind) => ( <MenuItem item={item} itemInd={ind} key={ind} />))}
                     </div>
