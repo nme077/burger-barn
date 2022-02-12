@@ -76,7 +76,7 @@ Install the latest version of [Node.js](https://nodejs.org/en/) (if you do not a
    
 ### Configuration
 
-1. Add .env file with the variables in [.env.example](.env.example)
+1. Add a `.env` file with the variables in [.env.example](.env.example). *Note: Skip `ADMIN_USER_ID` for now, it will be described later on.*
 
 2. Connect to MongoDB - get started with MongoDB Atlas at https://docs.atlas.mongodb.com/getting-started/
   - Obtain the unique URI to connect to your MongoDB database add it to your .env file.
@@ -84,12 +84,39 @@ Install the latest version of [Node.js](https://nodejs.org/en/) (if you do not a
   URI="mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]"
   ```
 
+3. Navigate to the ``'/register'`` in `app.js`.
+
+4. Comment out the code between the ```// Comment out logic to test``` comment and replace it with the following. *This will allow an admin user to be created without a token being created by an authorized administrator.*
+```
+// Unprotected registration logic for testing
+    User.register(new User(userInfo), req.body.password, (err) => {
+        if(err) return res.json({error: err.message});
+    
+        passport.authenticate('local', (err, user, info) => {
+            if(err) return res.json({error: err});
+            if(!user) return res.json({error: info});
+            req.logIn(user, err => {
+                if(err) return res.json({error: err});
+                return res.json({success: 'You are now logged in!'});
+            })
+        })(req, res, next);
+    });
+```
+5. In a browser, navigate to http://localhost:3000/register and enter the required info. *Note: token is required here, but you can enter any value in this intial step.* 
+
+6. Revert the code we modified in step 5 to the original.
+
+7. Add the ObjectId of the user you created to a `.env` file as `ADMIN_USER_ID`
+
 <!-- RUN THE APP -->
 ## Running the app
 
-1. Within the 'burger-barn' directory, run ```npm start```
+1. Within the `burger-barn` directory, run ```npm start```
 2. Open a second terminal and enter ```cd client```
 3. Run ```npm start```
+4. In a browser, navigate to http://localhost:3000/admin and add some menu items.
+  ![Add item screen](./client/src/assets/add_item_screen.png)
+5. Navigate to http://localhost:3000/ to see the results!
 
 
 <!-- ROADMAP -->
