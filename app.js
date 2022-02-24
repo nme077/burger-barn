@@ -15,7 +15,7 @@ const express = require('express'),
       mongoose = require('mongoose'),
       crypto = require('crypto');
 
-const httpRequestUrl = require('./httpRequestUrl');
+const allowedOrigins = require('./allowedOrigins');
 
 // App config
 app.use(express.urlencoded({extended: true}));
@@ -34,7 +34,16 @@ mongoose.connect(process.env.URI, {useNewUrlParser: true, useUnifiedTopology: tr
 
 // CORS setup
 app.use(cors({
-    origin: httpRequestUrl,
+    origin: function (origin, callback) {
+    // bypass the requests with no origin (like curl requests, mobile apps, etc )
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
+        return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+    },
     credentials: true
 }));
 // Session
@@ -234,7 +243,7 @@ app.post('/createToken', middleware.isLoggedIn, (req, res) => {
 });
 
 
-const root = require('path').join(__dirname, 'client', 'build')
+const root = path.join(__dirname, 'client', 'build')
 app.use(express.static(root));
 app.get("*", (req, res) => {
     res.sendFile('index.html', { root });
