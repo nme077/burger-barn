@@ -15,6 +15,7 @@ import Login from './components/Login/Login';
 import GenerateToken from './components/GenerateToken';
 import Loading from './components/Loading';
 import AccessDenied from './components/AccessDenied';
+import Hours from './components/Hours';
 import httpRequestUrl from './httpRequestUrl';
 
 
@@ -46,6 +47,14 @@ function App() {
             {isLoggedIn === null ? <Loading /> : 
               !isLoggedIn ? <Redirect to="/login" /> :
               isAdminUser ? <GenerateToken /> : <AccessDenied />}
+          </Route>
+          <Route exact path="/admin/hours">
+            {isLoggedIn === null ? <Loading /> : 
+              !isLoggedIn ? <Redirect to="/login" /> : 
+                <DndProvider backend={HTML5Backend}>
+                  <Hours isAdminUser={isAdminUser} isLoggedIn={isLoggedIn} />
+                </DndProvider>
+            }
           </Route>
           <Route exact path="/admin">
             {isLoggedIn === null ? <Loading /> : 

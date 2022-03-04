@@ -6,6 +6,7 @@ import httpRequestUrl from '../httpRequestUrl';
 import burger_1 from '../assets/burger-1.jpeg'
 import burger_2 from '../assets/burger-2.jpeg'
 import burger_3 from '../assets/burger-3.jpeg'
+import pdf from '../assets/file.pdf'
 
 let Link = Scroll.Link;
 
@@ -15,6 +16,7 @@ const sortItems = (a,b) => {
 
 function Home() {
     const [menu, setMenu] = useState([]);
+    const [hours, setHours]= useState(null);
     const [categoryList, setCategoryList] = useState([]);
     const [menuSelection, setMenuSelection] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -27,10 +29,23 @@ function Home() {
           setMenu(data.menu);
           setCategoryList(data.categories);
           setMenuSelection(data.categories[0].name);
+          setHours(data.text);
           setIsLoading(false);
         })
         .catch((err) => {
-          setMenu({error: 'Error fetching Menu'});
+          setMenu({error: 'Error fetching menu'});
+          setIsLoading(false);
+      })
+    }
+
+    function printMenu() {
+      fetch(httpRequestUrl + '/api/menu/pdf')
+        .then((data) => {
+          window.open(pdf)
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          setMenu({error: 'Error printing menu'});
           setIsLoading(false);
       })
     }
@@ -69,8 +84,10 @@ function Home() {
                     <a href="tel:(802)730-3441">Call to order</a>
                 </button>
                 <div className="break"></div>
+                <h2>*CASH ONLY*</h2>
+                <div className="break"></div>
                 <div className="hours-container">
-                  <h5 className="hours">Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM</h5>
+                  <h5 className="hours">{hours}{/* Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM */}</h5>
                 </div>
                 <div className="break"></div>
                 <div className="continue-btn-container">
@@ -98,6 +115,8 @@ function Home() {
                     <h2>Our Menu</h2>
                     <div className="break"></div>
                     <hr className="rectangle rectangle-menu" />
+                    <div className="break"></div>
+                    <button className="print-btn" onClick={printMenu}>Print Menu</button>
                     <div className="break"></div>
                     <h3>Local grass fed gourmet hamburgers & hand cut fries. <br /> 15+ different cheeses, fried food, call ahead for take out. BYOB.</h3>
                 </div>

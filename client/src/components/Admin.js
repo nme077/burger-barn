@@ -4,6 +4,7 @@ import update from 'immutability-helper';
 import RotateLoader from "react-spinners/RotateLoader";
 
 import { Item } from './Item.js';
+import Sidebar from './Sidebar.js';
 import httpRequestUrl from '../httpRequestUrl.js';
 
 import CurrencyInput from 'react-currency-input-field';
@@ -90,19 +91,6 @@ function Admin({isAdminUser}) {
         method: 'POST'
       }).then(() => {
         getMenu();
-      })
-    }
-
-    //Logout
-    function logout(e) {
-      fetch(httpRequestUrl + '/logout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { "Content-Type": "application/json" }
-      }).then((res) => {
-        history.push('/');
-      }).catch((err) => {
-        console.log(err);
       })
     }
   
@@ -202,6 +190,8 @@ function Admin({isAdminUser}) {
     return (
       <div className="App">
         <div className="wrapper">
+          <Sidebar isAdminUser={isAdminUser} active={'/admin'}/>
+          { /*
           <div id="sidebar">
               <div className="sidebar-heading">
                   <i className="fas fa-hamburger sidebar-heading-icon"></i>
@@ -219,6 +209,11 @@ function Admin({isAdminUser}) {
                   </a>
               </div> : null}
               <div className="sidebar-selection-container">
+                  <a className="sidebar-selection" href="/admin/hours">
+                      <i className="fas fa-clock sidebar-selection-icon"></i> Hours
+                  </a>
+              </div>
+              <div className="sidebar-selection-container">
                   <a className="sidebar-selection" href="/">
                       <i className="fas fa-home sidebar-selection-icon"></i> Home
                   </a>
@@ -228,7 +223,7 @@ function Admin({isAdminUser}) {
                       <i className="fas fa-sign-out-alt sidebar-selection-icon"></i> Logout
                   </button>
               </div>
-          </div>
+          </div> */}
   
           <div className="main">
               <div className="main-container">

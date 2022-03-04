@@ -5,15 +5,18 @@ const express = require('express'),
       cors = require('cors'),
       cookieParser = require('cookie-parser'),
       path = require('path'),
+      fs = require('fs'),
       passport = require('passport'),
       MenuItem = require('./models/menuItem'),
       User = require('./models/user.js'),
       Category = require('./models/category'),
       JoinToken = require('./models/joinToken'),
+      Hours = require('./models/hours'),
       middleware = require('./middleware'),
       dotenv = require('dotenv').config(),
       mongoose = require('mongoose'),
-      crypto = require('crypto');
+      crypto = require('crypto'),
+      PDFDocument = require('pdfkit');
 
 const allowedOrigins = require('./allowedOrigins');
 
@@ -74,10 +77,61 @@ app.get('/api/menu', (req, res) => {
         if(err) return res.json({menu: {error: 'Error fetching menu'}});
         Category.find((err, categories) => {
             if(err) return res.json({menu: {error: 'Error fetching categories'}});
-            return res.json({menu: menu, categories: categories});
+            Hours.find((err, hours) => {
+                if(err) return res.json({menu: {error: 'Error fetching hours'}});
+        
+                return res.json({menu: menu, categories: categories, text: hours[0].text, id: hours[0]._id});
+            })
         })
     })
 });
+
+app.get('/api/menu/pdf', (req, res) => {
+    MenuItem.find((err, menu) => {
+        if(err) return res.json({menu: {error: 'Error fetching menu'}});
+        Category.find((err, categories) => {
+            if(err) return res.json({menu: {error: 'Error fetching categories'}});
+            
+            // Initialize pdf
+            const doc = new PDFDocument;
+            doc.pipe(fs.createWriteStream('./client/src/assets/file.pdf')); // write to PDF
+
+            doc.font('Helvetica-Bold', {continued: true})
+               .fontSize(24, {continued: true})
+               .text('Burger Barn', {align: 'center'})
+               .fontSize(12)
+               .font('Helvetica');
+            
+            doc.text('Call 802-730-3441 to order',{align: 'center'});
+            doc.text('CASH ONLY', {align: 'center'});
+
+            doc.moveDown();
+
+            // add stuff to PDF here using methods described below...
+            menu.forEach(item => {
+                let priceStr = [];
+                doc.text(item.name);
+                doc.text(item.description);
+                item.prices.map((price, ind) => {
+                    if(price[0] || price[1]) {
+                        priceStr.push(price[0] ? price[0]+' '+price[1] : price[1])
+                    }
+                 })
+                 doc.text(priceStr.join(', '));
+                doc.moveDown();
+            })
+            
+            // finalize the PDF and end the stream
+            doc.end();
+            const menuPdf = './client/src/assets/file.pdf';
+            fs.readFile(menuPdf, function (err,data){
+                res.contentType("application/pdf");
+                res.setHeader('Content-Disposition', 'attachment; filename=burger-barn-menu.pdf');
+                res.send(data);
+            });
+        })
+    })
+})
 
 // Add menu item
 app.post('/api/menu', middleware.isLoggedIn, (req, res) => {
@@ -153,6 +207,33 @@ app.post('/api/menu/:id', middleware.isLoggedIn, (req, res) => {
 //// Delete category
 //app.delete('/api/menu/category/:id', middleware.isLoggedIn, (req, res) => {
 //    
+//});
+
+//// Edit Hours/Announcements field
+app.post('/api/hours/:id', middleware.isLoggedIn, (req, res) => {
+    Hours.findByIdAndUpdate(req.params.id, {text: req.body.text}, (err, updatedHours) => {
+        if(err) return res.json({error: 'Error updating hours'});
+    
+        return res.json({success: 'Hours successfully updated'});
+    })
+});
+
+//// Get Hours/Announcements field
+app.get('/api/hours', (req, res) => {
+    Hours.find((err, hours) => {
+        if(err) return res.json({menu: {error: 'Error fetching hours'}});
+
+        return res.json({text: hours[0].text, id: hours[0]._id});
+    })
+});
+
+// Add hours (only used to initialize hours)
+//app.post('/api/hours', middleware.isLoggedIn, (req, res) => {
+//    Hours.create({text: req.body.text}, (err, newHours) => {
+//        if(err) return res.json({error: 'Error creating item'});
+//        
+//        res.json({success: 'New item created'});
+//    })
 //});
 
 // Handle registration logic
