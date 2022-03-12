@@ -70,6 +70,7 @@ a {
   }
 
 .print-btn {
+  cursor: pointer;
   width: 100px;
   height: 30px;
   color: black;
@@ -149,7 +150,7 @@ a {
 }
 
 .hours {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .social-links {
@@ -689,6 +690,14 @@ footer {
   box-sizing: border-box;
 }
 
+.char-count {
+  font-size: 10px;
+  color: #6d6d6d;
+  width: 85%;
+  text-align: right;
+  padding: 5px;
+}
+
 .add-item-input::placeholder {
   color: #DDE2FF;
   opacity: .5;
@@ -773,6 +782,7 @@ footer {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  text-align: center;
   align-items: center;
   width: 400px;
   padding: 20px;
@@ -812,6 +822,17 @@ footer {
 
 .error-message {
   color: red;
+}
+
+.success-message {
+  color: white;
+}
+
+.auth-nav-link {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: right;
 }
 
 .loadingPage {

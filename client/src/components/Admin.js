@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useHistory } from "react-router-dom";
 import update from 'immutability-helper';
 import RotateLoader from "react-spinners/RotateLoader";
 
@@ -44,8 +43,6 @@ function Admin({isAdminUser}) {
       order: order,
       id: id // Only used to edit items
     }
-
-    const history = useHistory();
   
     function sortItems(a,b) {
       return a.order - b.order
@@ -191,40 +188,7 @@ function Admin({isAdminUser}) {
       <div className="App">
         <div className="wrapper">
           <Sidebar isAdminUser={isAdminUser} active={'/admin'}/>
-          { /*
-          <div id="sidebar">
-              <div className="sidebar-heading">
-                  <i className="fas fa-hamburger sidebar-heading-icon"></i>
-                  <h3 className="sidebar-heading-title">Admin</h3>
-              </div>
-              <div className="sidebar-selection-container">
-                  <a className="sidebar-selection active" href="/admin">
-                      <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
-                  </a>
-              </div>
-              {isAdminUser ?
-              <div className="sidebar-selection-container">
-                  <a className="sidebar-selection" href="/createToken">
-                      <i className="fas fa-key sidebar-selection-icon"></i> Generate Token
-                  </a>
-              </div> : null}
-              <div className="sidebar-selection-container">
-                  <a className="sidebar-selection" href="/admin/hours">
-                      <i className="fas fa-clock sidebar-selection-icon"></i> Hours
-                  </a>
-              </div>
-              <div className="sidebar-selection-container">
-                  <a className="sidebar-selection" href="/">
-                      <i className="fas fa-home sidebar-selection-icon"></i> Home
-                  </a>
-              </div>
-              <div className="sidebar-selection-container logout">
-                  <button className="sidebar-selection" onClick={logout}>
-                      <i className="fas fa-sign-out-alt sidebar-selection-icon"></i> Logout
-                  </button>
-              </div>
-          </div> */}
-  
+
           <div className="main">
               <div className="main-container">
                 <div className="header-container">

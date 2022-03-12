@@ -2,11 +2,12 @@ import * as Scroll from 'react-scroll';
 import React, { useState, useEffect } from 'react';
 import RotateLoader from "react-spinners/RotateLoader";
 import httpRequestUrl from '../httpRequestUrl';
+import { saveAs } from 'file-saver';
+import axios from 'axios';
 
 import burger_1 from '../assets/burger-1.jpeg'
 import burger_2 from '../assets/burger-2.jpeg'
 import burger_3 from '../assets/burger-3.jpeg'
-import pdf from '../assets/file.pdf'
 
 let Link = Scroll.Link;
 
@@ -39,15 +40,12 @@ function Home() {
     }
 
     function printMenu() {
-      fetch(httpRequestUrl + '/api/menu/pdf')
-        .then((data) => {
-          window.open(pdf)
-          setIsLoading(false);
+      axios.get(httpRequestUrl + '/api/menu/pdf', {responseType: 'blob'})
+        .then((res) => {
+          const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+
+          saveAs(pdfBlob, 'burger_barn_menu.pdf');
         })
-        .catch((err) => {
-          setMenu({error: 'Error printing menu'});
-          setIsLoading(false);
-      })
     }
 
     // Initialize the menu
