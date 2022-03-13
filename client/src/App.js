@@ -15,11 +15,15 @@ import Login from './components/Login/Login';
 import GenerateToken from './components/GenerateToken';
 import Loading from './components/Loading';
 import AccessDenied from './components/AccessDenied';
+import Hours from './components/Hours';
+import Forgot from './components/Login/Forgot';
+import Reset from './components/Login/Reset';
 import httpRequestUrl from './httpRequestUrl';
 
 
 function App() {
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [isAdminUser, setIsAdminUser] = useState(null);
 
@@ -47,6 +51,14 @@ function App() {
               !isLoggedIn ? <Redirect to="/login" /> :
               isAdminUser ? <GenerateToken /> : <AccessDenied />}
           </Route>
+          <Route exact path="/admin/hours">
+            {isLoggedIn === null ? <Loading /> : 
+              !isLoggedIn ? <Redirect to="/login" /> : 
+                <DndProvider backend={HTML5Backend}>
+                  <Hours isAdminUser={isAdminUser} isLoggedIn={isLoggedIn} />
+                </DndProvider>
+            }
+          </Route>
           <Route exact path="/admin">
             {isLoggedIn === null ? <Loading /> : 
               !isLoggedIn ? <Redirect to="/login" /> : 
@@ -57,6 +69,12 @@ function App() {
           </Route>
           <Route exact path="/register">
             {isLoggedIn === null ? <Loading /> : isLoggedIn ? <Redirect to="/admin" /> : <Register setIsLoggedIn={setIsLoggedIn} />}
+          </Route>
+          <Route exact path="/forgot">
+            {isLoggedIn === null ? <Loading /> : isLoggedIn ? <Redirect to="/admin" /> : <Forgot setError={setError} error={error} setSuccess={setSuccess} success={success} />}
+          </Route>
+          <Route exact path="/reset/:token">
+            {isLoggedIn === null ? <Loading /> : isLoggedIn ? <Redirect to="/admin" /> : <Reset setError={setError} error={error} setSuccess={setSuccess} success={success} />}
           </Route>
           <Route exact path="/login">
             {isLoggedIn === null ? <Loading /> : 

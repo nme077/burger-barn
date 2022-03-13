@@ -34,6 +34,7 @@ export default function Register({setIsLoggedIn}) {
       <div className="auth-wrapper">
         <div className="auth-form">
           <h1>Create a new Admin Account</h1>
+          <h3>You must obtain a token from an existing user to register.</h3>
           <form onSubmit={handleFormSubmit}>
               <input placeholder="Token" className="auth-form-input" type="text" value={token} onChange={e => setToken(e.target.value)} required/>
               <input placeholder="Email" className="auth-form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required/>
@@ -46,6 +47,9 @@ export default function Register({setIsLoggedIn}) {
                   <p className="error-message">{error}</p>
               </div>
             : null}
+            <div className="auth-nav-link">
+              <a href="/login">Already have an account? Login.</a>
+            </div>
           </form>
         </div>
       </div>

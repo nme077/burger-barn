@@ -64,7 +64,28 @@ a {
     justify-content: center;
     align-items: center;
     height: 100%;
-    width: 100%; }
+    width: 100%; 
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+.print-btn {
+  cursor: pointer;
+  width: 100px;
+  height: 30px;
+  color: black;
+  border-radius: 5px;
+  border: none; 
+}
+.print-btn a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%; 
+  font-weight: bolder;
+  font-size: 20px;
+}
 
 .navbar {
   width: 100%;
@@ -81,10 +102,12 @@ a {
 
 .nav-link {
   margin-top: 50px; 
-  cursor: pointer;}
+  cursor: pointer;
+  width: 60px;
+}
 
 .header-logo {
-  font-size: 110px;
+  font-size: 100px;
   top: 30px;
   padding-left: 60px;
   padding-right: 60px;
@@ -127,7 +150,7 @@ a {
 }
 
 .hours {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .social-links {
@@ -481,6 +504,15 @@ footer {
   margin-left: 10px;
 }
 
+.admin-table-title {
+  border-radius: 5px;
+  padding: 5px;
+  font-family: Avenir;
+  justify-self: left;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
 .column-header-container, .menu-item-container-admin {
   display: flex;
   justify-content: space-between;
@@ -609,6 +641,17 @@ footer {
   backdrop-filter: blur(1px);
 }
 
+.add-item-inner-hours {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  width: 100%;
+  min-height: 200px;
+  padding: 10px;
+}
+
 .add-item-inner {
   display: flex;
   flex-direction: column;
@@ -633,6 +676,26 @@ footer {
   border: none;
   border-radius: 5px;
   box-sizing: border-box;
+}
+
+.add-item-input-hours {
+  height: 20px;
+  width: 85%;
+  margin-top: 12px;
+  padding: 15px 10px 15px 10px;
+  font-family: Avenir;
+  font-size: 16px;
+  border: 1px solid #DFE0EB; 
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.char-count {
+  font-size: 10px;
+  color: #6d6d6d;
+  width: 85%;
+  text-align: right;
+  padding: 5px;
 }
 
 .add-item-input::placeholder {
@@ -679,6 +742,20 @@ footer {
   cursor: pointer;
 }
 
+.btn-edit-hours-submit {
+  height: 30px;
+  width: 40%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-family: Avenir;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  background-color:#A7ABBF;
+  cursor: pointer;
+}
+
 .btn-cancel {
   position: relative;
   left: 47%;
@@ -705,6 +782,7 @@ footer {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  text-align: center;
   align-items: center;
   width: 400px;
   padding: 20px;
@@ -744,6 +822,17 @@ footer {
 
 .error-message {
   color: red;
+}
+
+.success-message {
+  color: white;
+}
+
+.auth-nav-link {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: right;
 }
 
 .loadingPage {

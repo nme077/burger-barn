@@ -5,17 +5,29 @@ const express = require('express'),
       cors = require('cors'),
       cookieParser = require('cookie-parser'),
       path = require('path'),
+      fs = require('fs'),
       passport = require('passport'),
       MenuItem = require('./models/menuItem'),
       User = require('./models/user.js'),
       Category = require('./models/category'),
       JoinToken = require('./models/joinToken'),
+      Hours = require('./models/hours'),
       middleware = require('./middleware'),
       dotenv = require('dotenv').config(),
       mongoose = require('mongoose'),
-      crypto = require('crypto');
+      crypto = require('crypto'),
+      PDFDocument = require('pdfkit'),
+      nodemailer = require('nodemailer'),
+      { google } = require('googleapis'),
+      async = require('async');
 
+const { file } = require('googleapis/build/src/apis/file');
 const allowedOrigins = require('./allowedOrigins');
+
+// CONFIGURE GOOGLE
+const oAuth2Client = new google.auth.OAuth2(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.REDIRECT_URI);
+
+oAuth2Client.setCredentials({refresh_token: process.env.REFRESH_TOKEN});
 
 // App config
 app.use(express.urlencoded({extended: true}));
@@ -74,10 +86,76 @@ app.get('/api/menu', (req, res) => {
         if(err) return res.json({menu: {error: 'Error fetching menu'}});
         Category.find((err, categories) => {
             if(err) return res.json({menu: {error: 'Error fetching categories'}});
-            return res.json({menu: menu, categories: categories});
+            Hours.find((err, hours) => {
+                if(err) return res.json({menu: {error: 'Error fetching hours'}});
+        
+                return res.json({menu: menu, categories: categories, text: hours[0].text, id: hours[0]._id});
+            })
         })
     })
 });
+
+app.get('/api/menu/pdf', (req, res) => {
+    MenuItem.find((err, menu) => {
+        if(err) return res.json({menu: {error: 'Error fetching menu'}});
+        Category.find((err, categories) => {
+            if(err) return res.json({menu: {error: 'Error fetching categories'}});
+            
+            // Initialize pdf
+            const doc = new PDFDocument;
+            const writeStream = fs.createWriteStream('./menu.pdf');
+            doc.pipe(writeStream); // write to PDF
+
+            doc.font('Helvetica-Bold', {continued: true})
+               .fontSize(24, {continued: true})
+               .text('Burger Barn', {align: 'center'})
+               .fontSize(12)
+               .font('Helvetica');
+            
+            doc.text('Call 802-730-3441 to order',{align: 'center'});
+            doc.text('***CASH ONLY***', {align: 'center'});
+
+            doc.moveDown();
+
+            for(let cat of categories) {
+                // Category
+                doc.font('Helvetica-Bold', {continued: true})
+                   .fontSize(18, {continued: true})
+                   .text(cat.displayName)
+                   .fontSize(12)
+                   .font('Helvetica');
+
+                // Menu items within the category
+                const sortedMenu = menu.filter(item => item.category === cat.name)
+                    .sort((a,b) => {return a.order - b.order});
+                    
+                for(let item of sortedMenu) {
+                    let priceStr = [];
+                    doc.font('Helvetica-Bold', {continued: true})
+                       .text(item.name)
+                       .fontSize(12)
+                       .font('Helvetica');
+                    doc.text(item.description);
+                    item.prices.map((price, ind) => {
+                        if(price[0] || price[1]) {
+                            priceStr.push(price[0] ? price[0]+' '+price[1] : price[1])
+                        }
+                        })
+                        doc.text(priceStr.join(', '));
+                    doc.moveDown();
+                }
+            }
+
+            // finalize the PDF and end the stream
+            doc.end();
+
+            writeStream.on('finish', function () {
+                // send the PDF file
+                res.sendFile(`${__dirname}/menu.pdf`);
+            });
+        })
+    })
+})
 
 // Add menu item
 app.post('/api/menu', middleware.isLoggedIn, (req, res) => {
@@ -153,6 +231,33 @@ app.post('/api/menu/:id', middleware.isLoggedIn, (req, res) => {
 //// Delete category
 //app.delete('/api/menu/category/:id', middleware.isLoggedIn, (req, res) => {
 //    
+//});
+
+//// Edit Hours/Announcements field
+app.post('/api/hours/:id', middleware.isLoggedIn, (req, res) => {
+    Hours.findByIdAndUpdate(req.params.id, {text: req.body.text}, (err, updatedHours) => {
+        if(err) return res.json({error: 'Error updating hours'});
+    
+        return res.json({success: 'Hours successfully updated'});
+    })
+});
+
+//// Get Hours/Announcements field
+app.get('/api/hours', (req, res) => {
+    Hours.find((err, hours) => {
+        if(err) return res.json({menu: {error: 'Error fetching hours'}});
+
+        return res.json({text: hours[0].text, id: hours[0]._id});
+    })
+});
+
+// Add hours (only used to initialize hours)
+//app.post('/api/hours', middleware.isLoggedIn, (req, res) => {
+//    Hours.create({text: req.body.text}, (err, newHours) => {
+//        if(err) return res.json({error: 'Error creating item'});
+//        
+//        res.json({success: 'New item created'});
+//    })
 //});
 
 // Handle registration logic
@@ -242,6 +347,149 @@ app.post('/createToken', middleware.isLoggedIn, (req, res) => {
     }
 });
 
+// Send email to reset password
+app.post('/forgot', (req, res, next) => {
+    async.waterfall([
+        function(done) {
+            crypto.randomBytes(20, (err, buf) => {
+                const token = buf.toString('hex');
+                done(err, token);
+            });
+        },
+        function(token, done) {
+            User.findOne({email: req.body.email}, (err, user) => { 
+                if(!user) {
+                    return res.json({error: 'No account associated with that email exists'});
+                }
+
+                user.resetPasswordToken = token;
+                user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+                user.save(err => {
+                    done(err, token, user);
+                });
+            });
+        },
+        function(token, user, done) {
+            // Get access token
+            const accessToken = oAuth2Client.getAccessToken();
+
+            const smtpTransport = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    type: 'OAuth2',
+                    user: 'nicholaseveland93@gmail.com',
+                    clientId: process.env.CLIENT_ID,
+                    clientSecret: process.env.CLIENT_SECRET,
+                    refreshToken: process.env.REFRESH_TOKEN,
+                    accessToken: accessToken
+                }
+            });
+            const mailOptions = {
+                to: user.email,
+                from: '"Burger Barn" <cnicholaseveland93@gmail.com>',
+                subject: 'Burger Barn Password Reset',
+                text: `Hi, \n\n Someone requested that the password for your Burger Barn account be reset. \n\n Please click the following link or copy and paste it into your browser to reset your password. https://${process.env.FRONT_END_URL}/reset/${token} \n\n If you did not request this, you can ignore this email or let us know. Your password won't change until you create a new password. \n\n Sincerely, \n Burger Barn`,
+                html: `
+                <h3>Hi,</h3>
+
+                <p>Someone requested that the password for your Burger Barn account be reset. Please click button below or copy and paste the link into your browser to reset your password.</p>
+                
+                <button style="background: #3492eb; border-color: #3492eb; border-radius: 5px;"><a href="https://${process.env.FRONT_END_URL}/reset/${token}" style="color: black; text-decoration: none;">Reset Password</a></button>
+
+                <p>If you did not request this, you can ignore this email or let us know. Your password won't change until you create a new password.</p>
+                <p>Sincerely,</p> 
+                <p>Burger Barn</p>`
+            };
+            smtpTransport.sendMail(mailOptions, (err) => {
+                if(err) {
+                    return done(err, 'done');
+                }
+                res.json({success: 'Password reset request sent'});
+                done(err, 'done');
+            });
+        }
+    ], function(err) {
+        if(err) {
+            return next(err);
+        }
+    });
+});
+
+// Send reset password token
+app.get('/reset/:token', (req, res) => {
+    User.findOne({
+        resetPasswordToken: req.params.token,
+        resetPasswordExpires: {
+            $gt: Date.now()
+        }
+    }, function(err, user) {
+        if(!user) {
+            return res.json({error: 'Password reset token is invalid or has expired'});
+        }
+        return res.json({token: req.params.token});
+    })
+});
+
+// Reset password
+app.post('/reset/:token', (req, res) => {
+    async.waterfall([
+        function(done) {
+            User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires: {$gt: Date.now()}}, (err, user) => {
+                if(!user) {
+                    return res.json({error: 'Password reset token is invalid or has expired'});
+                }
+                if(req.body.password === req.body.confirmPassword) {
+                    user.setPassword(req.body.password, (err) => {
+                        user.resetPasswordToken = undefined;
+                        user.resetPasswordExpires = undefined;
+
+                        user.save((err) => {
+                            req.logIn(user, (err) => {
+                                done(err, user);
+                            });
+                        });
+                    })
+                } else {
+                    return res.json({error: 'Passwords do not match'});
+                }
+            });
+        },
+        function(user, done) {
+            // Get access token
+            const accessToken = oAuth2Client.getAccessToken();
+
+            const smtpTransport = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    type: 'OAuth2',
+                    user: 'nicholaseveland93@gmail.com',
+                    clientId: process.env.CLIENT_ID,
+                    clientSecret: process.env.CLIENT_SECRET,
+                    refreshToken: process.env.REFRESH_TOKEN,
+                    accessToken: accessToken
+                }
+            });
+            const mailOptions = {
+                to: user.email,
+                from: '"Burger Barn" <nicholaseveland93@gmail.com>',
+                subject: 'Your password has been changed',
+                text: `Hi, \n\n Your Burger Barn password has just changed.`
+            };
+            smtpTransport.sendMail(mailOptions, (err) => {
+                if(err) {
+                    return res.json({error: 'Something went wrong, try again'});
+                }
+                return res.json({success: 'Success! Your password has been changed.'});
+            })
+        }
+    ], function(err) {
+        if(err) {
+            return res.json({success: 'Success! Your password has been changed.'});
+        }
+        return res.json({success: 'Success! Your password has been changed.'});
+    })
+});
 
 const root = path.join(__dirname, 'client', 'build')
 app.use(express.static(root));
