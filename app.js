@@ -416,23 +416,8 @@ app.post('/forgot', (req, res, next) => {
     });
 });
 
-// Send reset password token
-app.get('/reset/:token', (req, res) => {
-    User.findOne({
-        resetPasswordToken: req.params.token,
-        resetPasswordExpires: {
-            $gt: Date.now()
-        }
-    }, function(err, user) {
-        if(!user) {
-            return res.json({error: 'Password reset token is invalid or has expired'});
-        }
-        return res.json({token: req.params.token});
-    })
-});
-
 // Reset password
-app.post('/reset/:token', (req, res) => {
+app.post('/api/reset/:token', (req, res) => {
     async.waterfall([
         function(done) {
             User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires: {$gt: Date.now()}}, (err, user) => {
