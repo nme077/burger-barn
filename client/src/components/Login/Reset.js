@@ -14,7 +14,7 @@ export default function Login({setError, error, setSuccess, success}) {
         e.preventDefault();
         setIsSubmitting(true);
     
-        fetch(httpRequestUrl + '/reset/' + token, {
+        fetch(httpRequestUrl + '/api/reset/' + token, {
             method: "POST",
             credentials: 'include',
             headers: { "Content-Type": "application/json" },
