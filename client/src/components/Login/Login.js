@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import httpRequestUrl from '../../httpRequestUrl';
 
-export default function Login({setError, error, setIsLoggedIn, setIsAdminUser}) {
+export default function Login({setError, error, setIsLoggedIn}) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,9 +20,8 @@ export default function Login({setError, error, setIsLoggedIn, setIsAdminUser}) 
         .then(async (res) => {
             const data = await res.json();
             setIsSubmitting(false);
-            if(data.error) setError(data.error.message)//return setError(data.error);
+            if(data.error) setError(data.error.message)
             data.success ? setIsLoggedIn(true) : setIsLoggedIn(false);
-            data.userInfo && data.userInfo._id === '61fc95746205e701303f5e82' ? setIsAdminUser(true) : setIsAdminUser(false)
         }).catch(err => {
           setIsSubmitting(false);
           if(err) return setError(err);

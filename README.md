@@ -76,7 +76,7 @@ Install the latest version of [Node.js](https://nodejs.org/en/) (if you do not a
    
 ### Configuration
 
-1. Add a `.env` file with the variables in [.env.example](.env.example). *Note: Skip `ADMIN_USER_ID` for now, it will be described later on.*
+1. Add a `.env` file with the variables in [.env.example](.env.example).
 
 2. Connect to MongoDB - get started with MongoDB Atlas at https://docs.atlas.mongodb.com/getting-started/
   - Obtain the unique URI to connect to your MongoDB database add it to your .env file.
@@ -105,8 +105,6 @@ Install the latest version of [Node.js](https://nodejs.org/en/) (if you do not a
 5. In a browser, navigate to http://localhost:3000/register and enter the required info. *Note: token is required here, but you can enter any value in this intial step.* 
 
 6. Revert the code we modified in step 5 to the original.
-
-7. Add the ObjectId of the user you created to a `.env` file as `ADMIN_USER_ID`
 
 <!-- RUN THE APP -->
 ## Running the app

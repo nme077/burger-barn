@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import httpRequestUrl from '../httpRequestUrl.js';
 
-function Sidebar({isAdminUser, active}) {
+function Sidebar({active}) {
     const history = useHistory();
     //Logout
     function logout(e) {
@@ -29,12 +29,11 @@ function Sidebar({isAdminUser, active}) {
                       <i className="fas fa-utensils sidebar-selection-icon"></i> Menu
                   </a>
               </div>
-              {isAdminUser ?
               <div className="sidebar-selection-container">
-                  <a className="sidebar-selection" href="/createToken">
-                      <i className="fas fa-key sidebar-selection-icon"></i> Generate Token
+                  <a className={`sidebar-selection ${active==='/createToken' ? 'active' : null}`} href="/createToken">
+                      <i className="fas fa-key sidebar-selection-icon"></i> Invite New User
                   </a>
-              </div> : null}
+              </div>
               <div className="sidebar-selection-container">
                   <a className={`sidebar-selection ${active==='/admin/hours' ? 'active' : null}`} href="/admin/hours">
                       <i className="fas fa-clock sidebar-selection-icon"></i> Hours

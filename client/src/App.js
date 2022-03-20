@@ -14,7 +14,6 @@ import Register from './components/Login/Register';
 import Login from './components/Login/Login';
 import GenerateToken from './components/GenerateToken';
 import Loading from './components/Loading';
-import AccessDenied from './components/AccessDenied';
 import Hours from './components/Hours';
 import Forgot from './components/Login/Forgot';
 import Reset from './components/Login/Reset';
@@ -25,7 +24,6 @@ function App() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(null);
-  const [isAdminUser, setIsAdminUser] = useState(null);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -37,7 +35,6 @@ function App() {
       const data = await res.json();
       if(data.error) return setError(data.error.message);
       setIsLoggedIn(data.userAuthenticated);
-      data.userInfo && data.userInfo._id === '61fc95746205e701303f5e82' ? setIsAdminUser(true) : setIsAdminUser(false)
     }).catch(err => {
       return setError(err);
     })
@@ -49,13 +46,13 @@ function App() {
           <Route exact path="/createToken">
             {isLoggedIn === null ? <Loading /> : 
               !isLoggedIn ? <Redirect to="/login" /> :
-              isAdminUser ? <GenerateToken /> : <AccessDenied />}
+              <GenerateToken />}
           </Route>
           <Route exact path="/admin/hours">
             {isLoggedIn === null ? <Loading /> : 
               !isLoggedIn ? <Redirect to="/login" /> : 
                 <DndProvider backend={HTML5Backend}>
-                  <Hours isAdminUser={isAdminUser} isLoggedIn={isLoggedIn} />
+                  <Hours isLoggedIn={isLoggedIn} />
                 </DndProvider>
             }
           </Route>
@@ -63,7 +60,7 @@ function App() {
             {isLoggedIn === null ? <Loading /> : 
               !isLoggedIn ? <Redirect to="/login" /> : 
                 <DndProvider backend={HTML5Backend}>
-                  <Admin isAdminUser={isAdminUser} isLoggedIn={isLoggedIn} />
+                  <Admin isLoggedIn={isLoggedIn} />
                 </DndProvider>
             }
           </Route>
@@ -79,7 +76,7 @@ function App() {
           <Route exact path="/login">
             {isLoggedIn === null ? <Loading /> : 
               isLoggedIn ? <Redirect to="/admin" /> : 
-              <Login setError={setError} error={error} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} setIsAdminUser={setIsAdminUser} />
+              <Login setError={setError} error={error} setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />
             }
           </Route>
           <Route exact path="/">

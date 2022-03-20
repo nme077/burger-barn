@@ -8,7 +8,7 @@ import httpRequestUrl from '../httpRequestUrl.js';
 
 import CurrencyInput from 'react-currency-input-field';
 
-function Admin({isAdminUser}) {
+function Admin() {
     // State variables
     const [menu, setMenu] = useState([]);
     const [displayInputForm, setDisplayInputForm] = useState(false);
@@ -187,7 +187,7 @@ function Admin({isAdminUser}) {
     return (
       <div className="App">
         <div className="wrapper">
-          <Sidebar isAdminUser={isAdminUser} active={'/admin'}/>
+          <Sidebar active={'/admin'}/>
 
           <div className="main">
               <div className="main-container">

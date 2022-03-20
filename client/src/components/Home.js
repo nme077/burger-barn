@@ -73,21 +73,18 @@ function Home() {
             </div>
             <div className="jumbotron">
                 <h6>Jeffersonville, VT</h6>
-                <div className="break"></div>
                 <h1>Burger Barn</h1>
-                <div className="break"></div>
                 <hr className="rectangle" />
-                <div className="break"></div>
                 <button className="order-btn">
                     <a href="tel:(802)730-3441">Call to order</a>
                 </button>
-                <div className="break"></div>
-                <h2>*CASH ONLY*</h2>
-                <div className="break"></div>
+                <h4>or</h4>
+                <h3>802-730-3441</h3>
+                
                 <div className="hours-container">
-                  <h5 className="hours">{hours}{/* Mon - Sat 11AM - 10PM, Sun: 12PM - 9PM */}</h5>
+                  <h5 className="hours">{hours}</h5>
+                  <h2>*CASH ONLY*</h2>
                 </div>
-                <div className="break"></div>
                 <div className="continue-btn-container">
                     <Link to="menu" className="continue-link" spy={true} smooth={true} duration={500}>
                         <i className="fas fa-angle-down"></i>
@@ -111,20 +108,17 @@ function Home() {
             <div className="menu-container" id="menu">
                 <div className="menu-heading">
                     <h2>Our Menu</h2>
-                    <div className="break"></div>
                     <hr className="rectangle rectangle-menu" />
-                    <div className="break"></div>
                     <button className="print-btn" onClick={printMenu}>Print Menu</button>
-                    <div className="break"></div>
                     <h3>Local grass fed gourmet hamburgers & hand cut fries. <br /> 15+ different cheeses, fried food, call ahead for take out. BYOB.</h3>
                 </div>
                 <div className="menu-selection">
                     {categoryList.map((cat, index) => {
                         return (
-                          <>
+                          <React.Fragment key={cat._id}>
                           <h5 className={"menu-select" + (menuSelection === cat.name ? ' active-menu' : '')} id={cat.name} onClick={updateMenuSelection}>{cat.displayName}</h5>
                           {index >= 0 && index < categoryList.length -1 ? <div className="menu-hr"></div> : null}
-                          </>
+                          </React.Fragment>
                         )
                     })}
                 </div>
@@ -157,6 +151,7 @@ function Home() {
         </iframe>
   
         <footer>
+            <a href="https://github.com/nme077/burger-barn" rel="noreferrer">View GitHub project <i className="fab fa-github"></i></a>
             <div className="copyright">&copy; Copyright Nicholas Eveland {new Date().getFullYear()}</div>
         </footer>
         </div>
