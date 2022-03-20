@@ -150,8 +150,20 @@ app.get('/api/menu/pdf', (req, res) => {
             doc.end();
 
             writeStream.on('finish', function () {
+                const file = `${__dirname}/menu.pdf`
                 // send the PDF file
-                res.sendFile(`${__dirname}/menu.pdf`);
+                res.sendFile(file,null,err => {
+                    if(err) {
+                        return res.json({menu: {error: 'Error printing menu'}});
+                    }
+                    try {
+                        fs.unlinkSync(file)
+                        //file removed
+                      } catch(err) {
+                        return res.json({menu: {error: 'Error deleting file'}});
+                      }
+                });
+                
             });
         })
     })
@@ -324,9 +336,6 @@ app.post('/logout', (req, res) => {
 })
 
 app.post('/createToken', middleware.isLoggedIn, (req, res) => {
-    // Only specified user may add other users. 
-    // Update in the future to store this list elsewhere
-    if(req.user._id.toString() === process.env.ADMIN_USER_ID) {
         crypto.randomBytes(20, (err, buf) => {
             const token = buf.toString('hex');
             if(err) return res.json({error: "Error generating token"});
@@ -342,9 +351,6 @@ app.post('/createToken', middleware.isLoggedIn, (req, res) => {
                 return res.json(token);
             })
         });
-    } else {
-        res.json({error: 'User not allowed to generate tokens.'})
-    }
 });
 
 // Send email to reset password

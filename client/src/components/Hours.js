@@ -4,7 +4,7 @@ import Sidebar from './Sidebar.js';
 
 import httpRequestUrl from '../httpRequestUrl.js';
 
-function Hours({isAdminUser}) {
+function Hours() {
     // State variables
     const [isLoading, setIsLoading] = useState(true);
     const [id, setId] = useState('');
@@ -68,7 +68,7 @@ function Hours({isAdminUser}) {
     return (
       <div className="App">
         <div className="wrapper">
-        <Sidebar isAdminUser={isAdminUser} active={'/admin/hours'}/>
+        <Sidebar active={'/admin/hours'}/>
   
           <div className="main">
               <div className="main-container">
