@@ -55,6 +55,7 @@ a {
   border: none; }
 
 .order-btn {
+  padding: 10px;
   width: 200px;
   height: 60px;
   text-transform: uppercase;
@@ -143,13 +144,8 @@ a {
 .header-line-vert-2 {
   right: 18%; }
 
-.hours-container {
-  width: 100%;
-  overflow-wrap: break-word;
-  line-height: normal;
-  position: relative;
+.centered-text {
   text-align: center;
-  overflow: hidden;
 }
 
 .hours {
@@ -255,7 +251,8 @@ a {
 }
 
 .active-menu-section {
-  display: flex; }
+  display: flex; 
+}
 
 .menu-item {
   padding: 5px;
@@ -263,23 +260,22 @@ a {
 }
 
 .jumbotron {
-  position: relative;
   display: flex;
+  text-align: center;
   flex-direction: column;
   text-transform: uppercase;
   font-family: Athiti;
   font-style: normal;
   font-weight: normal;
-  line-height: 0px;
   justify-content: center;
   align-items: center;
-  letter-spacing: 0.5em; 
-  width: 100%;
+  letter-spacing: 0.3em;
+  line-height: 1;
   height: 80%;
 }
 
-.jumbotron h1 {
-  margin: 1% 0px 1% 0px;
+.jumbotron-text {
+  margin: 0;
 }
 
 /** Mobile Device **/
@@ -289,7 +285,7 @@ a {
     margin: 0 auto; 
   } 
   .jumbotron h1 {
-    font-size: 42px; 
+    font-size: 46px; 
   }
   .jumbotron h6 {
     font-size: 16px; 
@@ -322,7 +318,8 @@ a {
   }
 
   .order-btn {
-    width: 150px;
+    padding: 5px;
+    width: 160px;
     height: 40px;
   }
 
@@ -331,9 +328,9 @@ a {
   }
 }
 
-@media screen and (max-height: 880px) {
+@media screen and (max-height: 815px) {
   .jumbotron h1 {
-    font-size: 56px; 
+    font-size: 60px; 
   }
   .jumbotron h6 {
     font-size: 14px; 
@@ -414,7 +411,7 @@ a {
   }
 }
 
-@media screen and (min-width: 800px) and (min-height: 880px) {
+@media screen and (min-width: 800px) and (min-height: 815px) {
   .menu-item {
     width: 40%;
     margin: 20px; 

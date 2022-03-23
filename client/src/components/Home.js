@@ -72,16 +72,15 @@ function Home() {
                 <Link to="map" className="nav-link" spy={true} smooth={true} duration={500}>Map</Link>
             </div>
             <div className="jumbotron">
-                <h6>Jeffersonville, VT</h6>
-                <h1>Burger Barn</h1>
+                <h6 className="jumbotron-text">Jeffersonville, VT</h6>
+                <h1 className="jumbotron-text">Burger Barn</h1>
                 <hr className="rectangle" />
                 <button className="order-btn">
                     <a href="tel:(802)730-3441">Call to order</a>
                 </button>
-                <h4>or</h4>
                 <h3>802-730-3441</h3>
                 
-                <div className="hours-container">
+                <div className="centered-text hours-container">
                   <h5 className="hours">{hours}</h5>
                   <h2>*CASH ONLY*</h2>
                 </div>
