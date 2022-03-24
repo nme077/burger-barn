@@ -31,12 +31,8 @@ a {
 .header {
   min-width: 100%;
   height: 100vh;
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
+
+
   color: white;
   background-image: url("./assets/burger-barn.png");
   background-position: center;
@@ -93,8 +89,8 @@ a {
 
 .navbar {
   width: 100%;
-  height: 150px;
-  position: absolute;
+  height: 150px; /* Height of jumbotron should be 100% less height of navbar */
+  position: relative;
   top: 0;
   display: flex;
   justify-content: center;
@@ -152,10 +148,16 @@ a {
   font-size: 20px;
 }
 
+.hours-container {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 .social-links {
   position: absolute;
   font-size: 30px; 
   right: 30px;
+  top: 50%;
 }
 
 .social-link {
@@ -166,7 +168,6 @@ a {
 
 .continue-btn-container {
   position: relative;
-  top: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -260,6 +261,7 @@ a {
 }
 
 .jumbotron {
+  position: relative;
   display: flex;
   text-align: center;
   flex-direction: column;
@@ -271,11 +273,18 @@ a {
   align-items: center;
   letter-spacing: 0.3em;
   line-height: 1;
-  height: 80%;
+  height: calc(100% - 150px);
 }
 
 .jumbotron-text {
   margin: 0;
+}
+
+.jumbotron h1 {
+  font-size: 60px; 
+}
+.jumbotron h6 {
+  font-size: 16px; 
 }
 
 /** Mobile Device **/
@@ -284,12 +293,6 @@ a {
     width: 100%;
     margin: 0 auto; 
   } 
-  .jumbotron h1 {
-    font-size: 46px; 
-  }
-  .jumbotron h6 {
-    font-size: 16px; 
-  }
   .menu-hr {
     display: none;
   }
@@ -329,12 +332,6 @@ a {
 }
 
 @media screen and (max-height: 815px) {
-  .jumbotron h1 {
-    font-size: 60px; 
-  }
-  .jumbotron h6 {
-    font-size: 14px; 
-  }
   .menu-hr {
     display: none;
   }
@@ -374,13 +371,14 @@ a {
   .hours-container > h5, h2 {
     font-size: 16px;
   }
-
-  .continue-btn-container {
-    bottom: 90px;
-  }
-
   .rectangle {
     margin: 25px;
+  }
+}
+
+@media screen and (max-height: 540px) {
+  .rectangle {
+    display: none;
   }
 }
 
@@ -389,12 +387,6 @@ a {
     width: 49%;
     margin: 0; 
   } 
-  .jumbotron h1 {
-    font-size: 56px; 
-  }
-  .jumbotron h6 {
-    font-size: 14px; 
-  }
   .menu-hr {
     display: none;
   }
